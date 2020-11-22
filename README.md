@@ -3,7 +3,7 @@ Chap-app
 
 # NodeJS
 
-npm run dev. Server will running on http://localhost:3000/
+npm run dev. Server will running on `http://localhost:3000/`
 
 ## Development server
 
