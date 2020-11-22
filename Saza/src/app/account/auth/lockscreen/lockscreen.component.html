@@ -1,0 +1,62 @@
+<div class="account-pages my-5 pt-sm-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-8 col-lg-6 col-xl-5">
+        <div class="text-center mb-4">
+          <a href="index.html" class="auth-logo mb-5 d-block">
+            <img src="assets/images/logo-dark.png" alt="" height="30" class="logo logo-dark">
+            <img src="assets/images/logo-light.png" alt="" height="30" class="logo logo-light">
+          </a>
+
+          <h4>{{'lockscreen.title' | translate}}</h4>
+          <p class="text-muted mb-4">{{'lockscreen.message' | translate}}</p>
+
+        </div>
+
+        <div class="card">
+          <div class="card-body p-4">
+            <div class="p-3">
+              <div class="user-thumb text-center mb-4">
+                <img src="assets/images/users/avatar-1.jpg" class="rounded-circle img-thumbnail avatar-lg"
+                  alt="thumbnail">
+                <h5 class="font-size-15 mt-3">{{'lockscreen.name' | translate}}</h5>
+              </div>
+              <form [formGroup]="lockscreenForm" (ngSubmit)="onSubmit()">
+
+                <div class="form-group mb-4">
+                  <label>{{'lockscreen.form.password.label' | translate}}</label>
+                  <div class="input-group mb-3 bg-soft-light input-group-lg rounded-lg">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text border-light text-muted">
+                        <i class="ri-lock-2-line"></i>
+                      </span>
+                    </div>
+                    <input type="password" formControlName="password" class="form-control bg-soft-light border-light"
+                      placeholder="{{'lockscreen.form.password.placeholder' | translate}}"
+                      [ngClass]="{ 'is-invalid': submitted && f.password.errors }">
+                    <div *ngIf="submitted && f.password.errors" class="invalid-feedback">
+                      <div *ngIf="f.password.errors.required">
+                        {{'lockscreen.form.password.validation.required' | translate}}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <button class="btn btn-primary btn-block"
+                    type="submit">{{'lockscreen.form.button.text' | translate}}</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-5 text-center">
+          <p>{{'lockscreen.signintext' | translate}} <a routerLink="/account/login"
+              class="font-weight-medium text-primary"> {{'lockscreen.signinlink' | translate}} </a> </p>
+          <p>© {{year}} {{'footer.name' | translate}} <i class="mdi mdi-heart text-danger"></i>
+            {{'footer.text' | translate}}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

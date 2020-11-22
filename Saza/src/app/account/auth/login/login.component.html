@@ -1,0 +1,86 @@
+<div class="account-pages my-5 pt-sm-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-8 col-lg-6 col-xl-5">
+        <div class="text-center mb-4">
+          <a routerLink="/" class="auth-logo mb-5 d-block">
+            <img src="assets/images/logo-dark.png" alt="" height="30" class="logo logo-dark">
+            <img src="assets/images/logo-light.png" alt="" height="30" class="logo logo-light">
+          </a>
+
+          <h4>{{'login.title' | translate}}</h4>
+          <p class="text-muted mb-4">{{'login.message' | translate}}</p>
+
+        </div>
+
+        <div class="card">
+          <div class="card-body p-4">
+            <div class="p-3">
+              <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+                <ngb-alert type="danger" *ngIf="error" [dismissible]="false">{{ error }}</ngb-alert>
+
+                <div class="form-group">
+                  <label>{{'login.form.email.label' | translate}}</label>
+                  <div class="input-group mb-3 bg-soft-light input-group-lg rounded-lg">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text border-light text-muted">
+                        <i class="ri-user-2-line"></i>
+                      </span>
+                    </div>
+                    <input type="email" class="form-control bg-soft-light border-light"
+                      placeholder="{{'login.form.email.placeholder' | translate}}" formControlName="email"
+                      [ngClass]="{ 'is-invalid': submitted && f.email.errors }">
+                    <div *ngIf="submitted && f.email.errors" class="invalid-feedback">
+                      <div *ngIf="f.email.errors.required">{{'login.form.email.validation.required' | translate}}</div>
+                      <div *ngIf="f.email.errors.email">{{ 'login.form.email.validation.invalid' | translate}}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group mb-4">
+                  <div class="float-right">
+                    <a routerLink="/account/reset-password"
+                      class="text-muted font-size-13">{{'login.form.forgotlink' | translate}}</a>
+                  </div>
+                  <label>{{'login.form.password.label' | translate}}</label>
+                  <div class="input-group mb-3 bg-soft-light input-group-lg rounded-lg">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text border-light text-muted">
+                        <i class="ri-lock-2-line"></i>
+                      </span>
+                    </div>
+                    <input type="password" formControlName="password" class="form-control bg-soft-light border-light"
+                      placeholder="{{'login.form.password.placeholder' | translate}}"
+                      [ngClass]="{ 'is-invalid': submitted && f.password.errors }">
+                    <div *ngIf="submitted && f.password.errors" class="invalid-feedback">
+                      <div *ngIf="f.password.errors.required">{{'login.form.password.validation.required' | translate}}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="custom-control custom-checkbox mb-4">
+                  <input type="checkbox" class="custom-control-input" id="remember-check">
+                  <label class="custom-control-label" for="remember-check">{{'login.form.remebertext' | translate}}</label>
+                </div>
+
+                <div>
+                  <button class="btn btn-primary btn-block"
+                    type="submit">{{'login.form.button.text' | translate}}</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-5 text-center">
+          <p>{{'login.signuptext' | translate}} <a routerLink="/account/signup" class="font-weight-medium text-primary">
+              {{'login.signuplink' | translate}}
+            </a> </p>
+          <p>© {{year}} {{'footer.name' | translate}} <i class="mdi mdi-heart text-danger"></i>
+            {{'footer.text' | translate}}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

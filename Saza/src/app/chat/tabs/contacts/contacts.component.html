@@ -1,0 +1,103 @@
+<!-- Start Contact content -->
+<div>
+  <div class="p-4">
+    <div class="user-chat-nav float-right">
+      <div ngbTooltip="Add Contact">
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-link text-decoration-none text-muted font-size-18 py-0" data-toggle="modal"
+          data-target="#addContact-exampleModal" (click)="openContactsModal(content)">
+          <i class="ri-user-add-line"></i>
+        </button>
+      </div>
+    </div>
+    <h4 class="mb-4">{{'chat.tabs.contacts.title' | translate}}</h4>
+
+    <!-- Start Add contact Modal -->
+    <ng-template #content let-modal>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title font-size-16" id="addContact-exampleModalLabel">
+            {{'chat.tabs.contacts.modal.title' | translate}}</h5>
+          <button type="button" class="close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body p-4">
+          <form>
+            <div class="form-group mb-4">
+              <label for="addcontactemail-input">{{'chat.tabs.contacts.modal.form.email.label' | translate}}</label>
+              <input type="email" class="form-control" id="addcontactemail-input"
+                placeholder="{{'chat.tabs.contacts.modal.form.email.placeholder' | translate}}">
+            </div>
+            <div class="form-group">
+              <label
+                for="addcontact-invitemessage-input">{{'chat.tabs.contacts.modal.form.message.label' | translate}}</label>
+              <textarea class="form-control" id="addcontact-invitemessage-input" rows="3"
+                placeholder="{{'chat.tabs.contacts.modal.form.message.placeholder' | translate}}"></textarea>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-link"
+            (click)="modal.dismiss('Cross click')">{{'chat.tabs.contacts.modal.form.button.close' | translate}}</button>
+          <button type="button"
+            class="btn btn-primary">{{'chat.tabs.contacts.modal.form.button.contact' | translate}}</button>
+        </div>
+      </div>
+    </ng-template>
+    <!-- End Add contact Modal -->
+
+    <div class="search-box chat-search-box">
+      <div class="input-group bg-light  input-group-lg rounded-lg">
+        <div class="input-group-prepend">
+          <button class="btn btn-link text-decoration-none text-muted pr-1" type="button">
+            <i class="ri-search-line search-icon font-size-18"></i>
+          </button>
+        </div>
+        <input type="text" class="form-control bg-light"
+          placeholder="{{'chat.tabs.contacts.search.placeholder' | translate}}">
+      </div>
+    </div>
+    <!-- End search-box -->
+  </div>
+  <!-- end p-4 -->
+
+  <!-- Start contact lists -->
+  <perfect-scrollbar class="p-4 chat-message-list chat-group-list" data-simplebar>
+
+    <div *ngFor="let item of contactsList">
+      <div class="p-3 font-weight-bold text-primary">
+        {{item.key}}
+      </div>
+
+      <ul class="list-unstyled contact-list">
+        <li *ngFor="let item of item.contacts">
+          <div class="media align-items-center">
+            <div class="media-body">
+              <h5 class="font-size-14 m-0">{{item.name | translate}}</h5>
+            </div>
+
+            <div class="dropdown" ngbDropdown>
+              <a href="javascript: void(0);" class="text-muted dropdown-toggle" ngbDropdownToggle data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false">
+                <i class="ri-more-2-fill"></i>
+              </a>
+              <div class="dropdown-menu dropdown-menu-right" ngbDropdownMenu>
+                <a class="dropdown-item" href="#">{{'chat.tabs.contacts.list.dropdown.item1' | translate}} <i
+                    class="ri-share-line float-right text-muted"></i></a>
+                <a class="dropdown-item" href="#">{{'chat.tabs.contacts.list.dropdown.item2' | translate}} <i
+                    class="ri-forbid-line float-right text-muted"></i></a>
+                <a class="dropdown-item" href="#">{{'chat.tabs.contacts.list.dropdown.item3' | translate}} <i
+                    class="ri-delete-bin-line float-right text-muted"></i></a>
+              </div>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+    <!-- end contact list A -->
+
+  </perfect-scrollbar>
+  <!-- end contact lists -->
+</div>
+<!-- Start Contact content -->
