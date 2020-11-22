@@ -1,7 +1,12 @@
 # Saza-app
-To run server nodeJS
+Chap-app
+
+# NodeJS
+
 npm run dev
 
-Run Sever Agunlar 
-cd /Saza
-ng serve
+## Development server
+
+cd /saza.
+Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+
