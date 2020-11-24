@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { User } from '../models/auth.models';
@@ -20,21 +20,26 @@ export class AuthfakeauthenticationService {
     }
 
     login(email: string, password: string) {
-        return this.http.post<any>(`/users/authenticate`, { email, password })
-            .pipe(map(user => {
-                // login successful if there's a jwt token in the response
-                if (user && user.token) {
-                    // store user details and jwt token in local storage to keep user logged in between page refreshes
-                    localStorage.setItem('currentUser', JSON.stringify(user));
-                    this.currentUserSubject.next(user);
-                }
-                return user;
-            }));
+        return this.http.post('/api/login', {email, password}).pipe(map(data => {
+            // login successful if there's a jwt token in the response
+            var token = Object.values(data)[0];
+            var user = Object.values(data)[1];
+            console.log(token);
+            if (token != null) {
+                // store user details and jwt token in local storage to keep user logged in between page refreshes
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                localStorage.setItem('currentToken', JSON.stringify(token));
+                this.currentUserSubject.next(user);
+                return data;
+            }
+            return null;
+        }));
     }
 
     logout() {
         // remove user from local storage to log user out
         localStorage.removeItem('currentUser');
+        localStorage.removeItem('currentToken');
         this.currentUserSubject.next(null);
     }
 }

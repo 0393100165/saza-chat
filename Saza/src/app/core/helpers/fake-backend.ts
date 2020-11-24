@@ -11,32 +11,36 @@ export class FakeBackendInterceptor implements HttpInterceptor {
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         // array in local storage for registered users
         // tslint:disable-next-line: max-line-length
-        const users: any[] = JSON.parse(localStorage.getItem('users')) || [{ username: 'admin', email: 'chatvia@themesbrand.com', password: '123456' }];
+        const users: any[] = JSON.parse(localStorage.getItem('users'));
+        const token: any[] = JSON.parse(localStorage.getItem('token'));
 
         // wrap in delayed observable to simulate server api call
         return of(null).pipe(mergeMap(() => {
 
             // authenticate
             if (request.url.endsWith('/users/authenticate') && request.method === 'POST') {
-                const filteredUsers = users.filter(user => {
-                    return user.email === request.body.email && user.password === request.body.password;
-                });
-                if (filteredUsers.length) {
-                    // if login details are valid return 200 OK with user details and fake jwt token
-                    const user = filteredUsers[0];
-                    const body = {
-                        id: user.id,
-                        email: user.email,
-                        username: user.username,
-                        firstName: user.firstName,
-                        lastName: user.lastName,
-                        token: 'fake-jwt-token'
-                    };
-
-                    return of(new HttpResponse({ status: 200, body }));
+                // const filteredUsers = users.filter(user => {
+                //     return user.email === request.body.email && user.password === request.body.password;
+                // });
+                // if (filteredUsers.length) {
+                //     // if login details are valid return 200 OK with user details and fake jwt token
+                //     const user = filteredUsers[0];
+                //     const body = {
+                //         id: user.id,
+                //         email: user.email,
+                //         username: user.username,
+                //         firstName: user.firstName,
+                //         lastName: user.lastName,
+                //         token: 'fake-jwt-token'
+                //     };
+                console.log('cho hayu');
+                
+                if(token[0] === null){
+                     // else return 400 bad request
+                     return throwError({ error: { message: 'Username or password is incorrect' } });
                 } else {
-                    // else return 400 bad request
-                    return throwError({ error: { message: 'Username or password is incorrect' } });
+                    const body = users[0];
+                    return of(new HttpResponse({ status: 200, body }));
                 }
             }
 
@@ -123,7 +127,6 @@ export class FakeBackendInterceptor implements HttpInterceptor {
             return next.handle(request);
 
         }))
-
             // tslint:disable-next-line: max-line-length
             // call materialize and dematerialize to ensure delay even if an error is thrown (https://github.com/Reactive-Extensions/RxJS/issues/648)
             .pipe(materialize())

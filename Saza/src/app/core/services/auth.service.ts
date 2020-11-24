@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 import { getFirebaseBackend } from '../../authUtils';
 
@@ -14,6 +15,7 @@ export class AuthenticationService {
 
     constructor(private http: HttpClient) {}
 
+    
     /**
      * Returns the current user
      */
@@ -26,7 +28,7 @@ export class AuthenticationService {
      * @param email email of user
      * @param password password of user
      */
-    login(email: string, password: string) {
+    login(email: string, password: string): Observable<any> {
         return this.http.post(this.rootURL + '/login', {email, password});
     }
 

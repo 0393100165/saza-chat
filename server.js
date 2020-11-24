@@ -42,17 +42,13 @@ function findUserbyIDPass(res, ID, pass){
               token: null
             })
           } else{
-              data : data.Items
-              if(data == null){
-                return res.json({
-                  token: null
-                })
-              }else{
-                var token = jwt.sign({_id: data._id}, 'id')
-                return res.json({
-                  token: token
-                })
-              }
+            // data : data.Items
+             
+            var token = jwt.sign({_id: data._id}, 'id')
+            return res.json({
+              token: token,
+              user: data
+            })
           }
       }
   });
@@ -60,8 +56,20 @@ function findUserbyIDPass(res, ID, pass){
 /***************************logging */
 app.post('/api/login', (req, res) =>{
   findUserbyIDPass(res, req.body.email, req.body.password);
+  // res.redirect('/');
 });
 /***************************Chat */
-
+app.get('/api/', (req, res) => {
+  try {
+    var token = req.cookies.token;
+    var check = jwt.verify(token, 'id');
+    console.log(check);
+    if(check){
+      
+    }
+  } catch (error) {
+    
+  }
+});
 /***************************Server listening */
 server.listen(process.env.PORT || port);
