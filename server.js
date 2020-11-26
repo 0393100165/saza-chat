@@ -17,6 +17,8 @@ var AWS = require("aws-sdk");
 AWS.config.update({
   region: "ap-southeast-1",
   endpoint: "http://dynamodb.ap-southeast-1.amazonaws.com",
+  accessKeyId:"AKIA5WDQBAFZ2OKJ4OMD",
+  secretAccessKey:"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"
 });
 var dynamodb = new AWS.DynamoDB();
 var docClient = new AWS.DynamoDB.DocumentClient();
@@ -29,7 +31,8 @@ function findUserbyIDPass(res, ID, pass){
       ExpressionAttributeValues:{
           ":r": ID,
           ":t": pass
-      }
+      },
+      Limit : 1
   };
   docClient.scan(params, function (err, data) {
       if (err) {
@@ -41,11 +44,11 @@ function findUserbyIDPass(res, ID, pass){
             })
           } else{
             // data : data.Items
-             
+          
             var token = jwt.sign({_id: data._id}, 'id')
             return res.json({
               token: token,
-              user: data
+              user: data.Items
             })
           }
       }
@@ -54,7 +57,15 @@ function findUserbyIDPass(res, ID, pass){
 /***************************logging */
 app.post('/api/login', (req, res) =>{
   findUserbyIDPass(res, req.body.email, req.body.password);
-  // res.redirect('/');
+});
+app.post('/api/checklogin', (req, res) =>{
+  try {
+    var token = req.body.token;
+    var check = jwt.verify(token, 'id');
+    return check;
+  } catch (error) {
+    return res.redirect('/account/login');
+  }
 });
 /***************************Chat */
 app.get('/api/', (req, res) => {
@@ -66,7 +77,7 @@ app.get('/api/', (req, res) => {
       
     }
   } catch (error) {
-    
+    return res.redirect('/account/login');
   }
 });
 /***************************Server listening */

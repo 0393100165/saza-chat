@@ -36,6 +36,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   destroy$: Subject<boolean> = new Subject<boolean>();
 
   ngOnInit(): void {
+    var checklogin = this.authFackservice.checkLogin();
     this.loginForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required]],
@@ -46,6 +47,8 @@ export class LoginComponent implements OnInit, OnDestroy {
     // get return url from route parameters or default to '/'
     // tslint:disable-next-line: no-string-literal
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+    if(checklogin)
+      this.router.navigate(['/']);
   }
 
   // convenience getter for easy access to form fields

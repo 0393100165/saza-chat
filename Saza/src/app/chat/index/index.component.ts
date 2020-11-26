@@ -20,7 +20,7 @@ import { AuthfakeauthenticationService } from '../../core/services/authfake.serv
  */
 export class IndexComponent implements OnInit {
 
-  activetab = 2;
+  activetab = 1;
   Messages: Message[];
 
   listLang = [
@@ -62,11 +62,7 @@ export class IndexComponent implements OnInit {
    * Logout the user
    */
   logout() {
-    if (environment.defaultauth === 'firebase') {
-      this.authService.logout();
-    } else if (environment.defaultauth === 'fackbackend') {
-      this.authFackservice.logout();
-    }
+    this.authFackservice.logout();
     this.router.navigate(['/account/login']);
   }
 

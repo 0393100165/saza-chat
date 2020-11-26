@@ -59,7 +59,7 @@ export class AuthenticationService {
      * Logout the user
      */
     logout() {
-        // logout the user
+        // logout the user   
         getFirebaseBackend().logout();
     }
 }
