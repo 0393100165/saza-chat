@@ -8,20 +8,20 @@
             <img src="assets/images/logo-light.png" alt="" height="30" class="logo logo-light">
           </a>
 
-          <h4>{{'signup.title' | translate}}</h4>
-          <p class="text-muted mb-4">{{'signup.message' | translate}}</p>
+          <h4>Đăng ký</h4>
+          <p class="text-muted mb-4">Chưa có tài khoản Saza, hãy tạo ngay cho bạn một tài khoản Saza-chat ngay bây giờ.</p>
         </div>
 
         <div class="card">
           <div class="card-body p-4">
             <div class="p-3">
               <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
-                <ngb-alert type="success" *ngIf="successmsg" [dismissible]="false">Registeration successfull.
+                <ngb-alert type="success" *ngIf="successmsg" [dismissible]="false">Đăng ký thành công
                 </ngb-alert>
                 <ngb-alert type="danger" *ngIf="error" [dismissible]="false">{{ error }}</ngb-alert>
 
                 <div class="form-group">
-                  <label>{{'signup.form.username.label' | translate}}</label>
+                  <label>Tên đăng nhập</label>
                   <div class="input-group mb-3 bg-soft-light input-group-lg rounded-lg">
                     <div class="input-group-prepend">
                       <span class="input-group-text border-light text-muted">
@@ -29,36 +29,17 @@
                       </span>
                     </div>
                     <input type="text" class="form-control bg-soft-light border-light"
-                      placeholder="{{'signup.form.username.placeholder' | translate}}" formControlName="username"
+                      placeholder="Nhập email hoặc số điện thoại" formControlName="username"
                       [ngClass]="{ 'is-invalid': submitted && f.username.errors }">
                     <div *ngIf="submitted && f.username.errors" class="invalid-feedback">
                       <div *ngIf="f.username.errors.required">
-                        {{'signup.form.username.validation.required' | translate}}</div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <label>{{'signup.form.email.label' | translate}}</label>
-                  <div class="input-group mb-3 bg-soft-light input-group-lg rounded-lg">
-                    <div class="input-group-prepend">
-                      <span class="input-group-text border-light text-muted">
-                        <i class="ri-mail-line"></i>
-                      </span>
-                    </div>
-                    <input type="email" formControlName="email" class="form-control bg-soft-light border-light"
-                      placeholder="{{'signup.form.email.placeholder' | translate }}"
-                      [ngClass]="{ 'is-invalid': submitted && f.email.errors }">
-                    <div *ngIf="submitted && f.email.errors" class="invalid-feedback">
-                      <div *ngIf="f.email.errors.required">{{ 'signup.form.email.validation.required' | translate}}
-                      </div>
-                      <div *ngIf="f.email.errors.email">{{ 'signup.form.email.validation.invalid' | translate}}</div>
+                        Tên đăng nhập không được trống</div>
                     </div>
                   </div>
                 </div>
 
                 <div class="form-group mb-4">
-                  <label>{{'signup.form.password.label' | translate}}</label>
+                  <label>Mật khẩu</label>
                   <div class="input-group mb-3 bg-soft-light input-group-lg rounded-lg">
                     <div class="input-group-prepend">
                       <span class="input-group-text border-light text-muted">
@@ -70,7 +51,40 @@
                       placeholder="{{'signup.form.password.placeholder' | translate}}">
                     <div *ngIf="submitted && f.password.errors" class="invalid-feedback">
                       <div *ngIf="f.password.errors.required">
-                        {{'signup.form.password.validation.required' | translate}}</div>
+                        Mật khẩu không được trống</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Họ & Tên</label>
+                  <div class="input-group mb-3 bg-soft-light input-group-lg rounded-lg">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text border-light text-muted">
+                        <i class="ri-pencil-line"></i>
+                      </span>
+                    </div>
+                    <input type="text" formControlName="fullname" class="form-control bg-soft-light border-light"
+                      placeholder="Họ tên của bạn"
+                      [ngClass]="{ 'is-invalid': submitted && f.fullname.errors }">
+                    <div *ngIf="submitted && f.fullname.errors" class="invalid-feedback">
+                      <div *ngIf="f.fullname.errors.required">Họ & Tên không được để trống</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Ngày Sinh</label>
+                  <div class="input-group mb-3 bg-soft-light input-group-lg rounded-lg">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text border-light text-muted">
+                        <i class="ri-calendar-line"></i>
+                      </span>
+                    </div>
+                    <input type="date" formControlName="birthday" class="form-control bg-soft-light border-light"
+                      [ngClass]="{ 'is-invalid': submitted && f.birthday.errors }">
+                    <div *ngIf="submitted && f.birthday.errors" class="invalid-feedback">
+                      <div *ngIf="f.birthday.errors.required">Ngày sinh không được để trống</div>
                     </div>
                   </div>
                 </div>

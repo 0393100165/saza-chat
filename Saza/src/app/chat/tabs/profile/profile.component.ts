@@ -9,6 +9,7 @@ import { Component, OnInit } from '@angular/core';
  * Tabs-Profile component
  */
 export class ProfileComponent implements OnInit {
+  url_avatar = ''
   nickname = ''
   status = ''
   status_message =''
@@ -16,6 +17,8 @@ export class ProfileComponent implements OnInit {
   email = ''
   phone = ''
   address = ''
+  sex = ''
+  birthday = ''
   
   constructor() { }
 
@@ -24,13 +27,16 @@ export class ProfileComponent implements OnInit {
     var data = localStorage.getItem('currentUser')    
     var user = JSON.parse(data)[0]
 
-    this.nickname = user.nicnname
+    this.url_avatar = user.url_avatar
+    this.nickname = user.nickname
     this.status = user.status
     this.status_message = user.status_message
-    this.fullname = user.firstName + ' ' + user.lastName
+    this.fullname = user.fullname
     this.email = user.email
     this.phone = user.phone
     this.address = user.address
+    this.sex = user.sex
+    this.birthday = user.birthday
   }
 
 }

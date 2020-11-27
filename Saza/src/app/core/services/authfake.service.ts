@@ -48,4 +48,20 @@ export class AuthfakeauthenticationService {
         localStorage.removeItem('currentToken');
         this.currentUserSubject.next(null);
     }
+
+    register(username:string, password:string, fullname:string,  birthday:string) {
+        
+        return this.http.post('/api/register', {username, password, fullname, birthday})
+        .pipe(map(data => {            
+            var token = Object.values(data)[0];
+            var user = Object.values(data)[1];
+            if(user.username === username){
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                localStorage.setItem('currentToken', JSON.stringify(token));
+                this.currentUserSubject.next(user);
+                return data;
+            }
+            return null;
+        }));
+    }
 }

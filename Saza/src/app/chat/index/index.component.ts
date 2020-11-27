@@ -20,8 +20,9 @@ import { AuthfakeauthenticationService } from '../../core/services/authfake.serv
  */
 export class IndexComponent implements OnInit {
 
-  activetab = 1;
+  activetab = 5;
   Messages: Message[];
+  url_avatar = '';
 
   listLang = [
     { text: 'English', flag: 'assets/images/flags/us.jpg', lang: 'en' },
@@ -38,7 +39,7 @@ export class IndexComponent implements OnInit {
 
   ngOnInit(): void {
     this.Messages = Messages;
-
+    this.url_avatar = 'assets/images/users/avatar-1.jpg';
     this.lang = this.translate.currentLang;
   }
 

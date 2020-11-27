@@ -1,12 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { first } from 'rxjs/operators';
 
-import { AuthenticationService } from '../../../core/services/auth.service';
-import { UserProfileService } from '../../../core/services/user.service';
-
-import { environment } from '../../../../environments/environment';
+import { Subject } from 'rxjs';
+import { AuthfakeauthenticationService } from '../../../core/services/authfake.service';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-signup',
@@ -17,7 +15,7 @@ import { environment } from '../../../../environments/environment';
 /**
  * Signup component
  */
-export class SignupComponent implements OnInit {
+export class SignupComponent implements OnInit, OnDestroy {
 
   signupForm: FormGroup;
   submitted = false;
@@ -27,16 +25,18 @@ export class SignupComponent implements OnInit {
   // set the currenr year
   year: number = new Date().getFullYear();
 
-  // tslint:disable-next-line: max-line-length
-  constructor(private formBuilder: FormBuilder, private route: ActivatedRoute, private router: Router, private authenticationService: AuthenticationService,
-              private userService: UserProfileService) { }
+  destroy$: Subject<boolean> = new Subject<boolean>();
 
+  // tslint:disable-next-line: max-line-length
+  constructor(private formBuilder: FormBuilder, private route: ActivatedRoute, private router: Router,
+    public authFackservice: AuthfakeauthenticationService) { }
 
   ngOnInit(): void {
     this.signupForm = this.formBuilder.group({
       username: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],
+      fullname: ['', Validators.required],
+      birthday: ['', Validators.required],
     });
   }
   // convenience getter for easy access to form fields
@@ -48,34 +48,28 @@ export class SignupComponent implements OnInit {
   onSubmit() {
     this.submitted = true;
 
-    // stop here if form is invalid
     if (this.signupForm.invalid) {
       return;
     } else {
-      if (environment.defaultauth === 'firebase') {
-        this.authenticationService.register(this.f.email.value, this.f.password.value).then((res: any) => {
-          this.successmsg = true;
-          if (this.successmsg) {
-            this.router.navigate(['/']);
-          }
-        })
-          .catch(error => {
+        this.authFackservice.register(this.f.username.value, this.f.password.value,
+         this.f.fullname.value, this.f.birthday.value.toString())
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(
+          data => {
+            if (data != null) {
+              this.router.navigate(['/']);
+            } else {
+              this.error = 'Register fail';
+            }
+          },
+          error => {
             this.error = error ? error : '';
-          });
-      } else {
-        this.userService.register(this.signupForm.value)
-          .pipe(first())
-          .subscribe(
-            data => {
-              this.successmsg = true;
-              if (this.successmsg) {
-                this.router.navigate(['/account/login']);
-              }
-            },
-            error => {
-              this.error = error ? error : '';
-            });
-      }
+          }); 
     }
+  }
+  
+  ngOnDestroy() {
+    this.destroy$.next(true);
+    this.destroy$.unsubscribe();
   }
 }

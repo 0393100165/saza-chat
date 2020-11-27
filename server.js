@@ -67,6 +67,50 @@ app.post('/api/checklogin', (req, res) =>{
     return res.redirect('/account/login');
   }
 });
+/***************************saveUser */
+let saveUser = function (ho,ten,pass,sdt,email,username,res) {
+  var id = Math.random();
+  var input = {
+          id:id,
+          firstName: ho,
+          lastName: ten,
+          password:pass,
+          stage: 1,
+          phone:sdt,
+          email:email,
+          token:"1",
+          username : username
+       };
+  var params = {
+      TableName: "User",
+      Item: input
+  };
+  docClient.put(params, function (err, data) {
+      if (err) {
+          console.log("User::save::error - " + JSON.stringify(err, null, 2));
+      } else {
+          console.log("User::save::success" );
+          if(data === null){
+            return res.json({
+              token: null
+            })
+          } else{
+            // data : data.Items
+             
+            var token = jwt.sign({_id: data._id}, 'id')
+            return res.json({
+              token: token,
+              user: data
+            }) 
+          }
+      }
+  });
+}
+/***************************register */
+app.post('/api/register', (req, res) => {
+    console.log(req.body.username, req.body.password, req.body.fullname, req.body.birthday);
+    // saveUser(req.body.fnameUser,req.body.fnameUser,req.body.password,req.body.phone,req.body.email,req.body.username,res);
+});
 /***************************Chat */
 app.get('/api/', (req, res) => {
   try {
