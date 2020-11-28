@@ -25,6 +25,7 @@
     "@ngx-translate/http-loader": "^6.0.0",
     "bootstrap": "^4.5.0",
     "firebase": "^7.18.0",
+    "ng-otp-input": "^1.7.1",
     "ngx-owl-carousel-o": "^4.0.0",
     "ngx-perfect-scrollbar": "^9.0.0",
     "ngx-socket-io": "^3.2.0",

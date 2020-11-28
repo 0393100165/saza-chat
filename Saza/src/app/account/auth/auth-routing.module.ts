@@ -5,14 +5,20 @@ import { LoginComponent } from './login/login.component';
 import { SignupComponent } from './signup/signup.component';
 import { PasswordresetComponent } from './passwordreset/passwordreset.component';
 import { LockscreenComponent } from './lockscreen/lockscreen.component';
+import { OTPComponent } from './signup/otp/otp.component';
 
 const routes: Routes = [
     {
         path: 'login',
         component: LoginComponent
-    }, {
+    },
+    {
         path: 'signup',
-        component: SignupComponent
+        component: SignupComponent,
+    },
+    {
+        path: 'signup/otp',
+        component: OTPComponent
     },
     {
         path: 'reset-password',

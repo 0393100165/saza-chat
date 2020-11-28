@@ -51,20 +51,38 @@ export class SignupComponent implements OnInit, OnDestroy {
     if (this.signupForm.invalid) {
       return;
     } else {
-        this.authFackservice.register(this.f.username.value, this.f.password.value,
-         this.f.fullname.value, this.f.birthday.value.toString())
-        .pipe(takeUntil(this.destroy$))
-        .subscribe(
-          data => {
-            if (Object.values(data)[0] != null) {
-              this.router.navigate(['/']);
-            } else {
-              this.error = Object.values(data)[1];
-            }
-          },
-          error => {
-            this.error = error ? error : '';
-          }); 
+      var username = this.f.username.value
+      var password = this.f.password.value
+      var fullname = this.f.fullname.value
+      var birthday = this.f.birthday.value
+      var email = ' '
+      var phone = ' '
+      /***********Kiểm tra username có hợp lệ */
+      if(!isNaN(username)){
+        const re = /[0-9]{9,11}$/ //Kiểm tra sô đt
+        if(re.test(String(username)))
+          //Username là số dt
+          phone = username
+        else return this.error = 'Tên người dùng không hợp lệ'
+      }else{
+        //Check Email
+        const re = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+        username = username.toLowerCase()
+        if(re.test(String(username)))
+          //username là Email
+          email = username
+        else return this.error = 'Tên người dùng không hợp lệ'
+      }
+
+      /**************OTP */
+      this.router.navigate(['/account/signup/otp', {
+        username, 
+        password, 
+        fullname,
+        birthday, 
+        email, 
+        phone
+      }]);
     }
   }
   
