@@ -29,7 +29,7 @@ export class PasswordresetComponent implements OnInit {
 
   ngOnInit(): void {
     this.resetForm = this.formBuilder.group({
-      email: ['', [Validators.required, Validators.email]],
+      email: ['', [Validators.required]],
     });
   }
 

@@ -38,7 +38,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     var checklogin = this.authFackservice.checkLogin();
     this.loginForm = this.formBuilder.group({
-      email: ['', [Validators.required, Validators.email]],
+      email: ['', [Validators.required]],
       password: ['', [Validators.required]],
     });
     
@@ -47,6 +47,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     // get return url from route parameters or default to '/'
     // tslint:disable-next-line: no-string-literal
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+    
     if(checklogin)
       this.router.navigate(['/']);
   }
@@ -70,7 +71,7 @@ export class LoginComponent implements OnInit, OnDestroy {
             if(data != null)
               this.router.navigate(['/']);
             else {
-              this.error = 'Username or password is incorrect';
+              this.error = 'Tên người dùng hoặc mật khẩu không chính xác';
             }
           },
           error => {

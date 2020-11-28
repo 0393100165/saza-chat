@@ -26,7 +26,7 @@ export class AuthfakeauthenticationService {
         }));
     }
 
-    login(email: string, password: string) {
+    login(email: string, password: string) {    
         return this.http.post('/api/login', {email, password}).pipe(map(data => {
             // login successful if there's a jwt token in the response
             var token = Object.values(data)[0];
@@ -50,18 +50,16 @@ export class AuthfakeauthenticationService {
     }
 
     register(username:string, password:string, fullname:string,  birthday:string) {
-        
-        return this.http.post('/api/register', {username, password, fullname, birthday})
-        .pipe(map(data => {            
+        return this.http.post('/api/register', {username, password, fullname, birthday}).pipe(map(data => {         
             var token = Object.values(data)[0];
             var user = Object.values(data)[1];
-            if(user.username === username){
+            if(token != null){
                 localStorage.setItem('currentUser', JSON.stringify(user));
                 localStorage.setItem('currentToken', JSON.stringify(token));
                 this.currentUserSubject.next(user);
                 return data;
             }
-            return null;
+            return data
         }));
     }
 }

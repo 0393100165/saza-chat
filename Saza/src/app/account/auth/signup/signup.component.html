@@ -48,7 +48,7 @@
                     </div>
                     <input type="password" formControlName="password" class="form-control bg-soft-light border-light"
                       [ngClass]="{ 'is-invalid': submitted && f.password.errors }"
-                      placeholder="{{'signup.form.password.placeholder' | translate}}">
+                      placeholder="Nhập mật khẩu của bạn">
                     <div *ngIf="submitted && f.password.errors" class="invalid-feedback">
                       <div *ngIf="f.password.errors.required">
                         Mật khẩu không được trống</div>
@@ -91,12 +91,12 @@
 
                 <div>
                   <button class="btn btn-primary btn-block"
-                    type="submit">{{'signup.form.button.text' | translate}}</button>
+                    type="submit">Đăng ký</button>
                 </div>
 
                 <div class="mt-4 text-center">
-                  <p class="text-muted mb-0">{{ 'signup.form.notice' | translate}} <a href="#"
-                      class="text-primary">{{ 'signup.form.term-text' | translate}}</a></p>
+                  <p class="text-muted mb-0">Bởi việc nhấn nút đăng ký bạn đồng ý với 
+                    <a href="#" class="text-primary">chính sách Saza-chat</a></p>
                 </div>
 
               </form>
@@ -105,8 +105,8 @@
         </div>
 
         <div class="mt-5 text-center">
-          <p>{{'signup.signintext' | translate}} <a routerLink="/account/login" class="font-weight-medium text-primary">
-              {{'signup.signinlink' | translate}}
+          <p>Đã có tài khoản? <a routerLink="/account/login" class="font-weight-medium text-primary">
+            Đăng nhập
             </a>
           </p>
           <p>© {{year}} {{'footer.name' | translate}} <i class="mdi mdi-heart text-danger"></i>

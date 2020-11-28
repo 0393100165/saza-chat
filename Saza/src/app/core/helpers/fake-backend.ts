@@ -33,7 +33,6 @@ export class FakeBackendInterceptor implements HttpInterceptor {
                 //         lastName: user.lastName,
                 //         token: 'fake-jwt-token'
                 //     };
-                console.log('cho hayu');
                 
                 if(token[0] === null){
                      // else return 400 bad request

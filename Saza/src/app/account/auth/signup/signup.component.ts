@@ -56,10 +56,10 @@ export class SignupComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this.destroy$))
         .subscribe(
           data => {
-            if (data != null) {
+            if (Object.values(data)[0] != null) {
               this.router.navigate(['/']);
             } else {
-              this.error = 'Register fail';
+              this.error = Object.values(data)[1];
             }
           },
           error => {

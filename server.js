@@ -17,44 +17,43 @@ var AWS = require("aws-sdk");
 AWS.config.update({
   region: "ap-southeast-1",
   endpoint: "http://dynamodb.ap-southeast-1.amazonaws.com",
+  accessKeyId:"AKIA5WDQBAFZ2OKJ4OMD",
+  secretAccessKey:"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"
 });
 var dynamodb = new AWS.DynamoDB();
 var docClient = new AWS.DynamoDB.DocumentClient();
 var tableName = "User";
-/***************************FindUserbyIDPass */
-function findUserbyIDPass(res, ID, pass){
+/***************************FindUser */
+function login(res, username, password){
   var params = {
       TableName : tableName,
-      FilterExpression  : "username = :r and password = :t",
+      FilterExpression  : "username = :u and password = :p",
       ExpressionAttributeValues:{
-          ":r": ID,
-          ":t": pass
+          ":u": username,
+          ":p": password
       },
-      Limit : 1
   };
   docClient.scan(params, function (err, data) {
-      if (err) {
-          console.log(JSON.stringify(err, null, 2));
-      } else {
-          if(data.Items.length === 0){
-            return res.json({
-              token: null
-            })
-          } else{
-            // data : data.Items
-          
-            var token = jwt.sign({_id: data._id}, 'id')
-            return res.json({
-              token: token,
-              user: data.Items
-            })
-          }
-      }
+    if (err) {
+        console.log(JSON.stringify(err, null, 2));
+    } else {
+        if(data.Items.length === 0){
+          return res.json({
+            token: null
+          })
+        } else{
+          var token = jwt.sign({_id: data._id}, 'id')
+          return res.json({
+            token: token,
+            user: data.Items
+          })
+        }
+    }
   });
 }
 /***************************logging */
 app.post('/api/login', (req, res) =>{
-  findUserbyIDPass(res, req.body.email, req.body.password);
+  login(res, req.body.email, req.body.password);
 });
 app.post('/api/checklogin', (req, res) =>{
   try {
@@ -66,18 +65,25 @@ app.post('/api/checklogin', (req, res) =>{
   }
 });
 /***************************saveUser */
-let saveUser = function (ho,ten,pass,sdt,email,username,res) {
-  var id = Math.random();
+let saveUser = function (username, password, fullname, email, phone, birthday, res) {
+  var max = 999999;
+  var min = 100000;
+  var id = Math.floor(Math.random() * (max - min) ) + min;
   var input = {
-          id:id,
-          firstName: ho,
-          lastName: ten,
-          password:pass,
-          stage: 1,
-          phone:sdt,
-          email:email,
-          token:"1",
-          username : username
+          id: id,
+          'username': username,
+          'password': password,
+          'fullname': fullname,
+          'nickname': fullname, //Mặc định lúc đầu nick = fullname
+          'isAdministrator': 0, //Người dùng bình thường
+          'status': 'Đang hoạt động',
+          'phone': phone,
+          'email': email,
+          'sex': 'Không xác định', //Mặc định
+          'birthday': birthday,
+          'address': ' ',
+          'status_message': ' ',
+          'url_avatar': 'assets/images/users/default.png', //avatar mặc định
        };
   var params = {
       TableName: "User",
@@ -90,31 +96,51 @@ let saveUser = function (ho,ten,pass,sdt,email,username,res) {
           console.log("User::save::success" );
           if(data === null){
             return res.json({
-              token: null
+              token: null,
+              error: 'Đăng kí không thành công'
             })
           } else{
-            // data : data.Items
-             
-            var token = jwt.sign({_id: data._id}, 'id')
-            return res.json({
-              token: token,
-              user: data
-            }) 
+            login(res, username, password);
           }
       }
   });
 }
 /***************************register */
 app.post('/api/register', (req, res) => {
-    console.log(req.body.username, req.body.password, req.body.fullname, req.body.birthday);
-    // saveUser(req.body.fnameUser,req.body.fnameUser,req.body.password,req.body.phone,req.body.email,req.body.username,res);
+    //Kiểm tra số điện thoại & email
+    var username = req.body.username
+    
+    if(!isNaN(username)){
+      const re = /[0-9]{9,11}$/ //Kiểm tra sô đt
+      if(re.test(String(username))){
+        //Username là số dt
+        saveUser(username, req.body.password, req.body.fullname, ' ', username, req.body.birthday, res);
+      }else{
+        return res.json({
+          token: null,
+          error: 'Tên người dùng không hợp lệ'
+        })
+      }
+    }else{
+      //Check Email
+      const re = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+      username = username.toLowerCase()
+      if(re.test(String(username))){
+        //username là Email
+        saveUser(username, req.body.password, req.body.fullname, username, ' ', req.body.birthday, res);
+      }else{
+        return res.json({
+          token: null,
+          error: 'Tên người dùng không hợp lệ'
+        })
+      }
+    }
 });
 /***************************Chat */
 app.get('/api/', (req, res) => {
   try {
     var token = req.cookies.token;
     var check = jwt.verify(token, 'id');
-    console.log(check);
     if(check){
       
     }

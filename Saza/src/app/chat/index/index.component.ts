@@ -20,7 +20,7 @@ import { AuthfakeauthenticationService } from '../../core/services/authfake.serv
  */
 export class IndexComponent implements OnInit {
 
-  activetab = 5;
+  activetab = 2;
   Messages: Message[];
   url_avatar = '';
 
@@ -39,7 +39,7 @@ export class IndexComponent implements OnInit {
 
   ngOnInit(): void {
     this.Messages = Messages;
-    this.url_avatar = 'assets/images/users/avatar-1.jpg';
+    this.url_avatar = JSON.parse(localStorage.getItem('currentUser'))[0].url_avatar;
     this.lang = this.translate.currentLang;
   }
 
