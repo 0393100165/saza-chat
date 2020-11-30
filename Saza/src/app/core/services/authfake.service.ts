@@ -67,5 +67,5 @@ export class AuthfakeauthenticationService {
         return this.http.post('/api/findbyusername', {username}).pipe(map(data => {
             return data;
         }));
-    }  
+    }
 }

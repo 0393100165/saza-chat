@@ -31,7 +31,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   // tslint:disable-next-line: max-line-length
   constructor(private formBuilder: FormBuilder, private route: ActivatedRoute,
     private router: Router, public authenticationService: AuthenticationService,
-    private authFackservice: AuthfakeauthenticationService) { }
+    public authFackservice: AuthfakeauthenticationService) { }
 
   destroy$: Subject<boolean> = new Subject<boolean>();
 
@@ -63,7 +63,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     // stop here if form is invalid
     if (this.loginForm.invalid) {
       return;
-    } else {      
+    } else {
       this.authFackservice.login(this.f.email.value, this.f.password.value)
         .pipe(takeUntil(this.destroy$))
         .subscribe(

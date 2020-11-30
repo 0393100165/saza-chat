@@ -1,5 +1,4 @@
 import { NgModule } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
 
 import { CommonModule } from '@angular/common';
 import { NgbDropdownModule, NgbAccordionModule, NgbModalModule, NgbCollapseModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
@@ -24,7 +23,6 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
   imports: [
     CarouselModule,
     CommonModule,
-    ReactiveFormsModule,
     NgbDropdownModule,
     NgbAccordionModule,
     PerfectScrollbarModule,

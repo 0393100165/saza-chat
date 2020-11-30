@@ -42,88 +42,62 @@
            </h5>
          </ng-template>
          <ng-template ngbPanelContent>
-          <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
-            <div class="float-right">
-            
-              <button type="button" *ngIf="!editable" class="btn btn-light btn-sm shadow-none" 
-              href="javascript: void(0);" (click)="editprofile()" ng-click="textBtnForm.$show()" ng-hide="textBtnForm.$visible">
-                <i class="ri-edit-fill mr-1 align-middle"></i>
-                chỉnh sửa</button>
-            
-              <button type="submit" *ngIf="editable" class="btn btn-light btn-sm shadow-none" >
-                <i class="ri-save-fill mr-1 align-middle"></i>
-                Lưu</button>
-              &nbsp;
-              <button type="button" *ngIf="editable" class="btn btn-light btn-sm shadow-none" 
-              href="javascript: void(0);" (click)="cancel()">
-                <i class="ri-close-fill mr-1 align-middle"></i>
-                Hủy</button>
-            
-            </div>
-            
-            <div class="form-group">
-              <div class="mt-4">
-                <p class="text-muted mb-1">Họ & tên</p>
-                <h5 *ngIf="!editable" class="font-size-14">{{fullname}}</h5>
-                <input *ngIf="editable" type="text" class="font-size-14 form-control bg-soft-light border-light"
-                  placeholder="{{fullname}}" formControlName="fullname">
-              </div>
-            </div>
+          <div class="float-right">
+          
+            <button type="button" *ngIf="!editable" class="btn btn-light btn-sm shadow-none" 
+            href="javascript: void(0);" (click)="editprofile()" ng-click="textBtnForm.$show()" ng-hide="textBtnForm.$visible">
+              <i class="ri-edit-fill mr-1 align-middle"></i>
+              chỉnh sửa</button>
+          
+            <button type="button" *ngIf="editable" class="btn btn-light btn-sm shadow-none" 
+            href="javascript: void(0);" (click)="saveprofile()">
+              <i class="ri-save-fill mr-1 align-middle"></i>
+              Lưu</button>
+            &nbsp;
+            <button type="button" *ngIf="editable" class="btn btn-light btn-sm shadow-none" 
+            href="javascript: void(0);" (click)="cancel()">
+              <i class="ri-close-fill mr-1 align-middle"></i>
+              Hủy</button>
+          
+          </div>
+          
+          <div class="mt-4">
+            <p class="text-muted mb-1">Họ & tên</p>
+            <h5 *ngIf="!editable" class="font-size-14">{{fullname}}</h5>
+            <input *ngIf="editable" type="text" class="font-size-14 form-control bg-soft-light border-light"
+              placeholder="{{fullname}}" formControlName="fullname">
+          </div>
 
-            <div class="form-group">
-              <div class="mt-4">
-                <p class="text-muted mb-1">Ngày sinh</p>
-                <h5 *ngIf="!editable" class="font-size-14" >{{birthday}}</h5>
-                <input *ngIf="editable" type="date" class="font-size-14 form-control bg-soft-light border-light"
-                formControlName="birthday" value="{{birthday}}">
-              </div>
-            </div>
+          <div class="mt-4">
+            <p class="text-muted mb-1">Ngày sinh</p>
+            <h5 *ngIf="!editable" class="font-size-14" >{{birthday}}</h5>
+            <input *ngIf="editable" type="date" class="font-size-14 form-control bg-soft-light border-light"
+            formControlName="birthday">
+          </div>
 
-            <div class="form-group">
-              <div class="mt-4">
-                <p class="text-muted mb-1">Giới tính</p>
-                <h5 *ngIf="!editable" class="font-size-14">{{sex}}</h5>
-                <select id="sex" *ngIf="editable" 
-                 class="font-size-14 form-control bg-soft-light border-light">
-                  <option value="Nam">Nam</option>
-                  <option value="Nữ">Nữ</option>
-                  <option value="Không xác định">Không xác định</option>
-                </select>
-              </div>
-            </div>
+          <div class="mt-4">
+            <p class="text-muted mb-1">Giới tính</p>
+            <h5 *ngIf="!editable" class="font-size-14">{{sex}}</h5>
+            <!-- TO-DO -->
+          </div>
 
-            <div class="form-group">
-              <div class="mt-4">
-                <p class="text-muted mb-1">Email</p>
-                <h5 *ngIf="!editable" class="font-size-14">{{ email}}</h5>
-                <input *ngIf="editable && editemail" type="email" class="font-size-14 form-control bg-soft-light border-light"
-                formControlName="email" placeholder="Mail của bạn">
-                <input *ngIf="editable && !editemail" type="email" class="font-size-14 form-control bg-soft-light border-light"
-                formControlName="email" placeholder="{{email}}" readonly>
-              </div>
-            </div>
+          <div class="mt-4">
+            <p class="text-muted mb-1">Email</p>
+            <h5 class="font-size-14">{{ email}}</h5>
+          </div>
 
-            <div class="form-group">
-              <div class="mt-4">
-                <p class="text-muted mb-1">Số điện thoại</p>
-                <h5 *ngIf="!editable" class="font-size-14">{{phone}}</h5>
-                <input *ngIf="editable && editphone" type="text" class="font-size-14 form-control bg-soft-light border-light"
-                formControlName="phone" placeholder="Số điện thoại của bạn">
-                <input *ngIf="editable && !editphone" type="text" class="font-size-14 form-control bg-soft-light border-light"
-                formControlName="phone" placeholder="{{phone}}" readonly>
-              </div>
-            </div>
+          <div class="mt-4">
+            <p class="text-muted mb-1">Số điện thoại</p>
+            <h5 class="font-size-14">{{phone}}</h5>
+          </div>
 
-            <div class="form-group">
-              <div class="mt-4">
-                <p class="text-muted mb-1">Địa chỉ</p>
-                <h5 *ngIf="!editable" class="font-size-14 mb-0">{{address}}</h5>
-                <input *ngIf="editable" type="text" class="font-size-14 form-control bg-soft-light border-light"
-                placeholder="{{address}}" formControlName="address">
-              </div>
-            </div>
-            
-          </form>
+          <div class="mt-4">
+            <p class="text-muted mb-1">Địa chỉ</p>
+            <h5 *ngIf="!editable" class="font-size-14 mb-0">{{address}}</h5>
+            <input *ngIf="editable" type="text" class="font-size-14 form-control bg-soft-light border-light"
+            placeholder="{{address}}" formControlName="address">
+          </div>
+
          </ng-template>
        </ngb-panel>
        <ngb-panel cardClass="card shadow-none border mb-2" id="privacy">

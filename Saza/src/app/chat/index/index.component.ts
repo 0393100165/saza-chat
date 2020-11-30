@@ -5,6 +5,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { Messages } from './data';
 import { Message } from './chat.model';
 
+import { environment } from '../../../environments/environment';
 import { AuthenticationService } from '../../core/services/auth.service';
 import { AuthfakeauthenticationService } from '../../core/services/authfake.service';
 
@@ -19,7 +20,7 @@ import { AuthfakeauthenticationService } from '../../core/services/authfake.serv
  */
 export class IndexComponent implements OnInit {
 
-  activetab = 5;
+  activetab = 2;
   Messages: Message[];
   url_avatar = '';
 

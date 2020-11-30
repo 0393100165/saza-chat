@@ -52,7 +52,6 @@
                     <div *ngIf="submitted && f.password.errors" class="invalid-feedback">
                       <div *ngIf="f.password.errors.required">
                         Mật khẩu không được trống</div>
-                      <div *ngIf="f.password.errors.minlength">Mật khẩu phải từ 6 kí tự trở lên</div>
                     </div>
                   </div>
                 </div>
@@ -70,7 +69,6 @@
                       [ngClass]="{ 'is-invalid': submitted && f.fullname.errors }">
                     <div *ngIf="submitted && f.fullname.errors" class="invalid-feedback">
                       <div *ngIf="f.fullname.errors.required">Họ & Tên không được để trống</div>
-                      <div *ngIf="f.fullname.errors.minlength">Họ tên không được ít hơn 2 ký tự</div>
                     </div>
                   </div>
                 </div>

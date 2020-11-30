@@ -15,7 +15,7 @@ import { OTPResComponent } from './passwordreset/otp/otp.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { NgOtpInputModule } from  'ng-otp-input';
 
-@NgModule({ 
+@NgModule({
   declarations: [LoginComponent, SignupComponent, PasswordresetComponent, LockscreenComponent, OTPComponent, OTPResComponent],
   imports: [
     CommonModule,

@@ -27,7 +27,7 @@ export class OTPComponent implements OnInit, OnDestroy {
   destroy$: Subject<boolean> = new Subject<boolean>();
 
   // tslint:disable-next-line: max-line-length
-  constructor(private route: ActivatedRoute, private router: Router, private routes: ActivatedRoute, private authFackservice: AuthfakeauthenticationService) { }
+  constructor(private route: ActivatedRoute, private router: Router, private routes: ActivatedRoute, public authFackservice: AuthfakeauthenticationService) { }
 
   ngOnInit(): void {
   }

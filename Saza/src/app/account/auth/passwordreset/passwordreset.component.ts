@@ -2,9 +2,10 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
+import { AuthfakeauthenticationService } from '../../../core/services/authfake.service';
+
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { AuthfakeauthenticationService } from '../../../core/services/authfake.service';
 
 @Component({
   selector: 'app-passwordreset',
@@ -22,10 +23,10 @@ export class PasswordresetComponent implements OnInit, OnDestroy {
   success = '';
   loading = false;
 
+  destroy$: Subject<boolean> = new Subject<boolean>();
+
   // set the currenr year
   year: number = new Date().getFullYear();
-
-  destroy$: Subject<boolean> = new Subject<boolean>();
 
   // tslint:disable-next-line: max-line-length
   constructor(private formBuilder: FormBuilder, private route: ActivatedRoute, private router: Router,
@@ -61,8 +62,6 @@ export class PasswordresetComponent implements OnInit, OnDestroy {
     this.router.navigate(['/account/reset-password/otp', {
       username
     }]);
-
-
   }
 
   ngOnDestroy() {

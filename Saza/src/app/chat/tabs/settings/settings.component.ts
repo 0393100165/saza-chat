@@ -1,10 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { AuthfakeauthenticationService } from '../../../core/services/authfake.service';
+import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-settings',
@@ -15,12 +9,7 @@ import { AuthfakeauthenticationService } from '../../../core/services/authfake.s
 /**
  * Tabs-settings component
  */
-export class SettingsComponent implements OnInit, OnDestroy {
-
-  profileForm: FormGroup;
-  submitted = false;
-  error = '';
-  successmsg = false;
+export class SettingsComponent implements OnInit {
   url_avatar = ''
   nickname = ''
   status = ''
@@ -32,23 +21,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
   sex = ''
   birthday = ''
   editable :boolean = false
-  editemail :boolean = false
-  editphone :boolean = false
-
-  destroy$: Subject<boolean> = new Subject<boolean>();
+  sexopt = []
   
-  constructor(private formBuilder: FormBuilder, private route: ActivatedRoute, private router: Router,
-    private authFackservice: AuthfakeauthenticationService) { }
+  constructor() { }
 
   ngOnInit(): void {
-    this.profileForm = this.formBuilder.group({
-      fullname: ['', Validators.required],
-      birthday: ['', Validators.required],
-      email: ['', Validators.required],
-      phone: ['', Validators.required],
-      address: ['', Validators.required],
-    });
-
     //Get user from localStorage
     var data = localStorage.getItem('currentUser')    
     var user = JSON.parse(data)[0]
@@ -59,12 +36,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.status_message = user.status_message
     this.fullname = user.fullname
     this.email = user.email
-    this.editemail = user.email === ' '
     this.phone = user.phone
-    this.editphone = user.phone === ' '
     this.address = user.address
     this.sex = user.sex
     this.birthday = user.birthday
+    this.sexopt = ['Nam', 'Nữ', 'Không xác định']
   }
 
   editavatar(){
@@ -79,28 +55,18 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   }
 
-  // convenience getter for easy access to form fields
-  get f() { return this.profileForm.controls; }
-
   editprofile(){
     this.editable = true
     console.log('editprofile');
-
   }
 
-  onSubmit() {
-    this.submitted = true;
+  saveprofile(){
     this.editable = false
-    console.log(this.f.fullname.value);
-     
+    console.log('save'); 
   }
 
   cancel(){
     this.editable = false
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next(true);
-    this.destroy$.unsubscribe();
+    console.log('cancel'); 
   }
 }
