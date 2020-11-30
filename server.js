@@ -17,6 +17,8 @@ var AWS = require("aws-sdk");
 AWS.config.update({
   region: "ap-southeast-1",
   endpoint: "http://dynamodb.ap-southeast-1.amazonaws.com",
+  accessKeyId:"AKIA5WDQBAFZ5U7AQIPJ",
+  secretAccessKey:"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"
 });
 var dynamodb = new AWS.DynamoDB();
 var docClient = new AWS.DynamoDB.DocumentClient();
@@ -62,20 +64,22 @@ function FindUserbyUsername(res, username){
     if (err) {
         console.log(JSON.stringify(err, null, 2));
     } else {
+        console.log(data);
         if(data.Items.length === 0){
           return res.json({
-            token: null
+            user: null
           })
         } else{
-          var token = jwt.sign({_id: data._id}, 'id')
           return res.json({
-            token: token,
             user: data.Items
           })
         }
     }
   });
 }
+app.post('/api/findbyusername', (req, res) =>{
+  FindUserbyUsername(res, req.body.username)
+});
 /***************************logging */
 app.post('/api/login', (req, res) =>{
   login(res, req.body.email, req.body.password);
@@ -132,14 +136,7 @@ let saveUser = function (res, username, password, fullname, email, phone, birthd
 }
 /***************************register */
 app.post('/api/register', (req, res) => {
-    //Kiểm tra username đã tồn tại chưa
-    var check = FindUserbyUsername(res, req.body.username)
-    if(check != null)
-      saveUser(res, req.body.username, req.body.password, req.body.fullname, req.body.email, req.body.phone, req.body.birthday);
-    return res.json({
-      token: null,
-      error: 'Tên tài đăng nhập đã tồn tại'
-    })
+    saveUser(res, req.body.username, req.body.password, req.body.fullname, req.body.email, req.body.phone, req.body.birthday);
 });
 /***************************Chat */
 app.get('/api/', (req, res) => {

@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { AuthenticationService } from '../../../core/services/auth.service';
-import { environment } from '../../../../environments/environment';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { AuthfakeauthenticationService } from '../../../core/services/authfake.service';
 
 @Component({
   selector: 'app-passwordreset',
@@ -13,7 +14,7 @@ import { environment } from '../../../../environments/environment';
 /**
  * Reset-password comoponent
  */
-export class PasswordresetComponent implements OnInit {
+export class PasswordresetComponent implements OnInit, OnDestroy {
 
   resetForm: FormGroup;
   submitted = false;
@@ -24,12 +25,15 @@ export class PasswordresetComponent implements OnInit {
   // set the currenr year
   year: number = new Date().getFullYear();
 
+  destroy$: Subject<boolean> = new Subject<boolean>();
+
   // tslint:disable-next-line: max-line-length
-  constructor(private formBuilder: FormBuilder, private route: ActivatedRoute, private router: Router, private authenticationService: AuthenticationService) { }
+  constructor(private formBuilder: FormBuilder, private route: ActivatedRoute, private router: Router,
+    private authFackservice: AuthfakeauthenticationService) { }
 
   ngOnInit(): void {
     this.resetForm = this.formBuilder.group({
-      email: ['', [Validators.required]],
+      username: ['', [Validators.required]],
     });
   }
 
@@ -47,11 +51,22 @@ export class PasswordresetComponent implements OnInit {
     if (this.resetForm.invalid) {
       return;
     }
-    if (environment.defaultauth === 'firebase') {
-      this.authenticationService.resetPassword(this.f.email.value)
-        .catch(error => {
-          this.error = error ? error : '';
-        });
-    }
+    var username = this.f.username.value
+    //Kiểm tra username có tồn tại ko
+    this.authFackservice.FindUserbyUsername(username).pipe(takeUntil(this.destroy$)).subscribe(data => {
+      if(Object.values(data)[0] === null)
+        return this.error = 'Tên người dùng không tồn tại'
+    })
+
+    this.router.navigate(['/account/reset-password/otp', {
+      username
+    }]);
+
+
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next(true);
+    this.destroy$.unsubscribe();
   }
 }

@@ -3,8 +3,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { Subject } from 'rxjs';
-import { AuthfakeauthenticationService } from '../../../core/services/authfake.service';
 import { takeUntil } from 'rxjs/operators';
+import { AuthfakeauthenticationService } from '../../../core/services/authfake.service';
 
 @Component({
   selector: 'app-signup',
@@ -29,13 +29,13 @@ export class SignupComponent implements OnInit, OnDestroy {
 
   // tslint:disable-next-line: max-line-length
   constructor(private formBuilder: FormBuilder, private route: ActivatedRoute, private router: Router,
-    public authFackservice: AuthfakeauthenticationService) { }
+    private authFackservice: AuthfakeauthenticationService) { }
 
   ngOnInit(): void {
     this.signupForm = this.formBuilder.group({
       username: ['', Validators.required],
-      password: ['', Validators.required],
-      fullname: ['', Validators.required],
+      password: ['', [Validators.required, Validators.minLength(6)]],
+      fullname: ['', [Validators.required, Validators.minLength(2)]],
       birthday: ['', Validators.required],
     });
   }
@@ -73,7 +73,20 @@ export class SignupComponent implements OnInit, OnDestroy {
           email = username
         else return this.error = 'Tên người dùng không hợp lệ'
       }
+      
+      //Kiểm tra username đã tồn tại chưa
+      this.authFackservice.FindUserbyUsername(username).pipe(takeUntil(this.destroy$)).subscribe(data => {
+      
+        if(Object.values(data)[0] != null)
+          return this.error = 'Tên người dùng đã tồn tại'
+      })
 
+      //Người dùng trên 8 tuổi
+      console.log((new Date().getTime() -  new Date(birthday).getTime())/31556952000);
+      
+      if(((new Date().getTime() -  new Date(birthday).getTime())/31556952000) < 8)
+        return this.error = 'Người dùng phải trên 8 tuổi'
+  
       /**************OTP */
       this.router.navigate(['/account/signup/otp', {
         username, 
@@ -85,6 +98,8 @@ export class SignupComponent implements OnInit, OnDestroy {
       }]);
     }
   }
+
+  
   
   ngOnDestroy() {
     this.destroy$.next(true);

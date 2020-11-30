@@ -10,12 +10,13 @@ import { SignupComponent } from './signup/signup.component';
 import { PasswordresetComponent } from './passwordreset/passwordreset.component';
 import { LockscreenComponent } from './lockscreen/lockscreen.component';
 import { OTPComponent } from './signup/otp/otp.component';
+import { OTPResComponent } from './passwordreset/otp/otp.component';
 
 import { TranslateModule } from '@ngx-translate/core';
 import { NgOtpInputModule } from  'ng-otp-input';
 
-@NgModule({
-  declarations: [LoginComponent, SignupComponent, PasswordresetComponent, LockscreenComponent, OTPComponent],
+@NgModule({ 
+  declarations: [LoginComponent, SignupComponent, PasswordresetComponent, LockscreenComponent, OTPComponent, OTPResComponent],
   imports: [
     CommonModule,
     TranslateModule,

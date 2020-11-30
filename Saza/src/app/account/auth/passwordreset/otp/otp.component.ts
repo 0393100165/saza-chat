@@ -6,7 +6,7 @@ import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 
 @Component({
-  selector: 'app-otp',
+  selector: 'app-otp-res',
   templateUrl: './otp.component.html',
   styleUrls: ['./otp.component.scss']
 })
@@ -14,7 +14,7 @@ import { Subject } from 'rxjs';
 /**
  * OTP comoponent
  */
-export class OTPComponent implements OnInit, OnDestroy {
+export class OTPResComponent implements OnInit, OnDestroy {
 
   submitted = false;
   error = '';
@@ -88,23 +88,8 @@ export class OTPComponent implements OnInit, OnDestroy {
     //Chưa làm
     /********************** register ******************************/
     var username = this.routes.snapshot.paramMap.get('username')
-    var password = this.routes.snapshot.paramMap.get('password')
-    var fullname = this.routes.snapshot.paramMap.get('fullname')
-    var email = this.routes.snapshot.paramMap.get('email')
-    var phone = this.routes.snapshot.paramMap.get('phone')
-    var birthday = this.routes.snapshot.paramMap.get('birthday')
 
-    this.authFackservice.register(username, password, fullname, email, phone, birthday)
-      .pipe(takeUntil(this.destroy$)).subscribe(data => {
-        if (Object.values(data)[0] != null) {
-          this.router.navigate(['/']);
-        } else {
-          this.error = Object.values(data)[1];
-        }
-      },
-      error => {
-        this.error = error ? error : '';
-    });
+   
   }
 
   reSendOTP(){

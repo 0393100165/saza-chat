@@ -62,4 +62,10 @@ export class AuthfakeauthenticationService {
             return data
         }));
     }
+
+    FindUserbyUsername(username:string) {
+        return this.http.post('/api/findbyusername', {username}).pipe(map(data => {
+            return data;
+        }));
+    }  
 }
