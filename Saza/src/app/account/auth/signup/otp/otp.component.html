@@ -18,17 +18,19 @@
             <div class="p-3">
                 <ngb-alert type="danger" *ngIf="error" [dismissible]="false">{{ error }}</ngb-alert>
                 <ngb-alert type="success" *ngIf="success" [dismissible]="false">{{ success }}</ngb-alert>
-
+                
                 <div class="mb-4">
                   <label>Mã OTP</label>
-                  <div class="input-group mb-3 input-group-lg rounded-lg justify-content-center">
+                  <div *ngIf="loading" class="input-group mb-3 input-group-lg rounded-lg justify-content-center">
                     <ng-otp-input Name="otp" (onInputChange)="onOtpChange($event)" 
                     [config]="{length:6, allowNumbersOnly:true}"></ng-otp-input>  
                     <div *ngIf="error" class="invalid-feedback">{{error}}</div>
                   </div>
                 </div>
+                
+                <div class="mt-4 text-center" id="recaptcha-container"></div>
 
-                <div>
+                <div class="mt-4">
                   <button class="btn btn-primary btn-block"
                     type="submit" href="javascript: void(0);"
                     (click)="onSubmit()">Xác nhận</button>

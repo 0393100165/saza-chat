@@ -5,6 +5,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { AuthfakeauthenticationService } from '../../../core/services/authfake.service';
 import { takeUntil } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
+
+import * as firebase from 'firebase/app'
+import { WindowService } from '../../../core/services/window.service';
 
 @Component({
   selector: 'app-signup',
@@ -29,7 +33,7 @@ export class SignupComponent implements OnInit, OnDestroy {
 
   // tslint:disable-next-line: max-line-length
   constructor(private formBuilder: FormBuilder, private route: ActivatedRoute, private router: Router,
-    public authFackservice: AuthfakeauthenticationService) { }
+    public authFackservice: AuthfakeauthenticationService) {}
 
   ngOnInit(): void {
     this.signupForm = this.formBuilder.group({
@@ -60,9 +64,10 @@ export class SignupComponent implements OnInit, OnDestroy {
       /***********Kiểm tra username có hợp lệ */
       if(!isNaN(username)){
         const re = /[0-9]{9,11}$/ //Kiểm tra sô đt
-        if(re.test(String(username)))
+        if(re.test(String(username))){
           //Username là số dt
           phone = username
+        }
         else return this.error = 'Tên người dùng không hợp lệ'
       }else{
         //Check Email
@@ -73,6 +78,12 @@ export class SignupComponent implements OnInit, OnDestroy {
           email = username
         else return this.error = 'Tên người dùng không hợp lệ'
       }
+      //Username đã có
+      this.authFackservice.FindUserbyUsername(username)
+        .pipe(takeUntil(this.destroy$)).subscribe(data => {
+          if(data != null)
+            return this.error = 'Tên người dùng đã tồn tại'
+        })
 
       //Người dùng nhập năm lớn hơn năm hiện tại
       if(((new Date().getTime() -  new Date(birthday).getTime())/31556952000) < 0)

@@ -1,0 +1,11 @@
+{
+  "targets": {
+    "saza-chat": {
+      "hosting": {
+        "chatvia": [
+          "saza-chat"
+        ]
+      }
+    }
+  }
+}
