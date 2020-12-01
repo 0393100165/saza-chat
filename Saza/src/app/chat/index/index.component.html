@@ -19,53 +19,35 @@
     <!-- Start side-menu nav -->
     <div class="flex-lg-column my-auto">
       <ul class="nav nav-pills side-menu-nav justify-content-center" role="tablist">
-        <li class="nav-item" ngbTooltip="Profile">
+        <li class="nav-item" ngbTooltip="Thông tin">
           <a class="nav-link" id="pills-user-tab" (click)="activetab=1" href="javascript: void(0);"
             [ngClass]="{'active': activetab === 1}">
             <i class="ri-user-2-line"></i>
           </a>
         </li>
-        <li class="nav-item" ngbTooltip="Chats">
+        <li class="nav-item" ngbTooltip="Chát">
           <a class="nav-link active" id="pills-chat-tab" (click)="activetab=2" href="javascript: void(0);"
             [ngClass]="{'active': activetab === 2}">
             <i class="ri-message-3-line"></i>
           </a>
         </li>
-        <li class="nav-item" ngbTooltip="Groups">
-          <a class="nav-link" id="pills-groups-tab" (click)="activetab=3" href="javascript: void(0);"
-            [ngClass]="{'active': activetab === 3}">
-            <i class="ri-group-line"></i>
-          </a>
-        </li>
-        <li class="nav-item" ngbTooltip="Contacts" placement="top">
+        <li class="nav-item" ngbTooltip="Liên lạc" placement="top">
           <a class="nav-link" id="pills-contacts-tab" (click)="activetab=4" href="javascript: void(0);"
             [ngClass]="{'active': activetab === 4}">
             <i class="ri-contacts-line"></i>
           </a>
         </li>
-        <li class="nav-item" ngbTooltip="Settings">
+        <li class="nav-item" ngbTooltip="Nhóm">
+          <a class="nav-link" id="pills-groups-tab" (click)="activetab=3" href="javascript: void(0);"
+            [ngClass]="{'active': activetab === 3}">
+            <i class="ri-group-line"></i>
+          </a>
+        </li>
+        <li class="nav-item" ngbTooltip="Cài đặt">
           <a class="nav-link" id="pills-setting-tab" (click)="activetab=5" href="javascript: void(0);"
             [ngClass]="{'active': activetab === 5}">
             <i class="ri-settings-2-line"></i>
           </a>
-        </li>
-
-
-        <li class="nav-item dropdown profile-user-dropdown d-inline-block d-lg-none" ngbDropdown placement="top">
-          <a class="nav-link dropdown-toggle" href="javascript: void(0);" role="button" data-toggle="dropdown"
-            aria-haspopup="true" aria-expanded="false" ngbDropdownToggle>
-            <img src="{{url_avatar}}" alt="" class="profile-user rounded-circle">
-          </a>
-          <div class="dropdown-menu" ngbDropdownMenu>
-            <a class="dropdown-item" href="#">{{'chat.profiledropdown.profile' | translate}} <i
-                class="ri-profile-line float-right text-muted"></i></a>
-            <a class="dropdown-item" href="#">{{'chat.profiledropdown.setting' | translate}} <i
-                class="ri-settings-3-line float-right text-muted"></i></a>
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="javascript: void(0);"
-              (click)="logout()">{{'chat.profiledropdown.logout' | translate}} <i
-                class="ri-logout-circle-r-line float-right text-muted"></i></a>
-          </div>
         </li>
       </ul>
     </div>
@@ -73,7 +55,7 @@
 
     <div class="flex-lg-column d-none d-lg-block">
       <ul class="nav side-menu-nav justify-content-center">
-
+        <!-- Chức năng bị hủy
         <li class="nav-item btn-group dropup profile-user-dropdown" ngbDropdown placement="top-left">
           <a class="nav-link dropdown-toggle" href="#" role="button" ngbDropdownToggle data-toggle="dropdown"
             aria-haspopup="true" aria-expanded="false">
@@ -94,19 +76,21 @@
           </a>
         </li>
 
+        -->
+
         <li class="nav-item btn-group dropup profile-user-dropdown" ngbDropdown placement="top-left">
           <a class="nav-link dropdown-toggle" href="#" role="button" ngbDropdownToggle data-toggle="dropdown"
             aria-haspopup="true" aria-expanded="false">
             <img src="{{url_avatar}}" alt="" class="profile-user rounded-circle">
           </a>
           <div class="dropdown-menu" ngbDropdownMenu>
-            <a class="dropdown-item" href="#">{{'chat.profiledropdown.profile' | translate}} <i
+            <a class="dropdown-item" (click)="activetab=4" href="javascript: void(0);">Liêc lạc <i
                 class="ri-profile-line float-right text-muted"></i></a>
-            <a class="dropdown-item" href="#">{{'chat.profiledropdown.setting' | translate}} <i
+            <a class="dropdown-item" (click)="activetab=5" href="javascript: void(0);">Cài đặt <i
                 class="ri-settings-3-line float-right text-muted"></i></a>
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="javascript: void(0);"
-              (click)="logout()">{{'chat.profiledropdown.logout' | translate}} <i
+              (click)="logout()">Đăng xuất<i
                 class="ri-logout-circle-r-line float-right text-muted"></i></a>
           </div>
         </li>

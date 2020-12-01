@@ -44,7 +44,6 @@ export class OTPComponent implements OnInit, OnDestroy {
 
     this.windowRef = this.win.windowRef
     this.windowRef.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container')
-
     this.windowRef.recaptchaVerifier.render()
 
     var phone = this.routes.snapshot.paramMap.get('phone')
@@ -138,7 +137,7 @@ export class OTPComponent implements OnInit, OnDestroy {
           this.windowRef.confirmationResult = result;
           this.loading = true;
       })
-      .catch( error => console.log(error) );
+      .catch( error => this.error = error ? error : '' );
   }
 
   verifyLoginCode() {

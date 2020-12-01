@@ -5,7 +5,6 @@ import { TranslateService } from '@ngx-translate/core';
 import { Messages } from './data';
 import { Message } from './chat.model';
 
-import { environment } from '../../../environments/environment';
 import { AuthenticationService } from '../../core/services/auth.service';
 import { AuthfakeauthenticationService } from '../../core/services/authfake.service';
 
@@ -20,19 +19,9 @@ import { AuthfakeauthenticationService } from '../../core/services/authfake.serv
  */
 export class IndexComponent implements OnInit {
 
-  activetab = 2;
+  activetab = 4;
   Messages: Message[];
   url_avatar = '';
-
-  listLang = [
-    { text: 'English', flag: 'assets/images/flags/us.jpg', lang: 'en' },
-    { text: 'Spanish', flag: 'assets/images/flags/spain.jpg', lang: 'es' },
-    { text: 'German', flag: 'assets/images/flags/germany.jpg', lang: 'de' },
-    { text: 'Italian', flag: 'assets/images/flags/italy.jpg', lang: 'it' },
-    { text: 'Russian', flag: 'assets/images/flags/russia.jpg', lang: 'ru' },
-  ];
-
-  lang: string;
 
   constructor(private authFackservice: AuthfakeauthenticationService, private authService: AuthenticationService,
               private router: Router, public translate: TranslateService) { }
@@ -40,7 +29,6 @@ export class IndexComponent implements OnInit {
   ngOnInit(): void {
     this.Messages = Messages;
     this.url_avatar = JSON.parse(localStorage.getItem('currentUser'))[0].url_avatar;
-    this.lang = this.translate.currentLang;
   }
 
   /**
@@ -71,8 +59,4 @@ export class IndexComponent implements OnInit {
    * Set language
    * @param lang language
    */
-  setLanguage(lang) {
-    this.translate.use(lang);
-    this.lang = lang;
-  }
 }
