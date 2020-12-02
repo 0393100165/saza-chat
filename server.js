@@ -17,6 +17,8 @@ var AWS = require("aws-sdk");
 AWS.config.update({
   region: "ap-southeast-1",
   endpoint: "http://dynamodb.ap-southeast-1.amazonaws.com",
+  accessKeyId:"AKIA5WDQBAFZ5U7AQIPJ",
+  secretAccessKey:"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"
 });
 var dynamodb = new AWS.DynamoDB();
 var docClient = new AWS.DynamoDB.DocumentClient();
@@ -136,6 +138,41 @@ let saveUser = function (res, username, password, fullname, email, phone, birthd
 app.post('/api/register', (req, res) => {
     saveUser(res, req.body.username, req.body.password, req.body.fullname, req.body.email, req.body.phone, req.body.birthday);
 });
+/***************************Get all user email, phone */
+//Tìm mỗi user thôi
+function getAllEmailPhone(res){
+  const userData = []
+  var params = {
+      TableName : tableName,
+      FilterExpression  : "isAdministrator = :u",
+      ExpressionAttributeValues:{
+          ":u": 0
+      },
+  };
+  docClient.scan(params, function (err, data) {
+    if (err) {
+        console.log(JSON.stringify(err, null, 2));
+    } else {
+      data.Items.forEach(function(itemdata) {
+        if(itemdata.phone != ' ')
+          userData.push(itemdata.phone)
+        if(itemdata.email != ' ')
+          userData.push(itemdata.email)
+      });
+      // continue scanning if we have more items
+      if (typeof data.LastEvaluatedKey != "undefined") {
+        console.log("Scanning for more...");
+        params.ExclusiveStartKey = data.LastEvaluatedKey;
+        docClient.scan(params, onScan);
+      }
+    }
+    return res.json({userData})
+  });
+
+}
+app.get('/api/getAllEmailPhone', (req, res) => {
+  docClient.scan(getAllEmailPhone(res));
+})
 /***************************Chat */
 app.get('/api/', (req, res) => {
   try {

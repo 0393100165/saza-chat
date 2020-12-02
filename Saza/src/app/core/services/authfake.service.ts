@@ -68,4 +68,10 @@ export class AuthfakeauthenticationService {
             return data;
         }));
     }
+
+    getAllEmailPhone(){
+        return this.http.get('/api/getAllEmailPhone').pipe(map(data => {
+            return data;
+        }));
+    }
 }

@@ -5,6 +5,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { contacts } from './data';
 import { Contacts } from './contacts.model';
 import { TranslateService } from '@ngx-translate/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { AuthfakeauthenticationService } from '../../../core/services/authfake.service';
 
@@ -16,14 +18,18 @@ import { AuthfakeauthenticationService } from '../../../core/services/authfake.s
 /**
  * Tab-contacts component
  */
-export class ContactsComponent implements OnInit {
+export class ContactsComponent implements OnInit, OnDestroy {
 
   contactForm: FormGroup;
 
   contacts: Contacts[];
   contactsList: any;
-  term = '';
-  items: string[] = [];
+
+  searchText = '';
+  userSearch = []
+  error = ''
+
+  destroy$: Subject<boolean> = new Subject<boolean>();
 
   constructor(private modalService: NgbModal, public translate: TranslateService, private formBuilder: FormBuilder,
     private authFackservice: AuthfakeauthenticationService) { }
@@ -36,8 +42,14 @@ export class ContactsComponent implements OnInit {
       name: ['', Validators.required],
       invitemessage: ['Xin chao bạn, mình là ' + user.fullname + ' rất vui khi được làm quen với bạn.']
     });
- 
 
+    this.authFackservice.getAllEmailPhone().pipe(takeUntil(this.destroy$)).subscribe( data => {
+      this.userSearch = data['userData']
+    },
+    error => {
+      console.error(error);
+    });
+    
     const sorted = contacts.sort((a, b) => a.name > b.name ? 1 : -1);
     
 
@@ -64,6 +76,24 @@ export class ContactsComponent implements OnInit {
   }
 
   onSubmit(){
+    var name = this.searchText
+    this.authFackservice.FindUserbyUsername(name)
+      .pipe(takeUntil(this.destroy$)).subscribe(data => {
+        if(data != null)
+          return this.error = 'Người dùng không tồn tại'
+    })
+  }
 
+  getUser(event){
+    var target = event.target || event.srcElement || event.currentTarget;
+    var idAttr = target.attributes.id;
+    var value = idAttr.nodeValue;
+    
+    this.searchText = value
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next(true);
+    this.destroy$.unsubscribe();
   }
 }

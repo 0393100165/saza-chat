@@ -15,12 +15,15 @@ import { SettingsComponent } from './settings/settings.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { ReactiveFormsModule } from '@angular/forms';
 
+import { FilterPipe } from '../../core/models/filter.pipe';
+
+
 const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
   suppressScrollX: true
 };
 
 @NgModule({
-  declarations: [ProfileComponent, ChatsComponent, ContactsComponent, GroupsComponent, SettingsComponent],
+  declarations: [ProfileComponent, ChatsComponent, ContactsComponent, GroupsComponent, SettingsComponent, FilterPipe],
   imports: [
     CarouselModule,
     CommonModule,

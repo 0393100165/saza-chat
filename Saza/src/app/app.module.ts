@@ -24,8 +24,6 @@ import { AngularFireMessagingModule } from '@angular/fire/messaging';
 import { AngularFireDatabaseModule } from '@angular/fire/database';
 import { AngularFireFunctionsModule } from '@angular/fire/functions';
 
-import { Ng2SearchPipeModule } from 'ng2-search-filter';
-
 if (environment.defaultauth === 'firebase') {
   initFirebaseBackend(environment.firebaseConfig);
 } else {
@@ -54,7 +52,6 @@ export function createTranslateLoader(http: HttpClient): any {
     AngularFireMessagingModule,
     AngularFireDatabaseModule,
     AngularFireFunctionsModule,
-    Ng2SearchPipeModule,
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,

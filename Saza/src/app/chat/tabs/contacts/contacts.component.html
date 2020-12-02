@@ -17,32 +17,36 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title font-size-16" id="addContact-exampleModalLabel">
-            THêm bạn</h5>
+            Thêm bạn</h5>
           <button type="button" class="close" (click)="modal.dismiss('Cross click')">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
+        
+        <h2 type="text" class="text-danger text-center" *ngIf="error" [dismissible]="false">{{ error }}</h2>
+        
         <form [formGroup]="contactForm" (ngSubmit)="onSubmit()">
           <div class="modal-body p-4">
-          
-              <div class="form-group mb-4">
-                <label for="addcontactemail-input">Email/Phone</label>
-                <input type="text" class="form-control" id="addcontactemail-input" 
-                  formControlName="name" [(ngModel)]="term"
-                  placeholder="Nhập Email hoặc Phone">
-                  <div *ngFor = "let item of items |filter:term" >
-                    <p>
-                      {{item.name}}
-                    </p>
-                  </div>
-              </div>
-              
-              <div class="form-group">
-                <label
-                  for="addcontact-invitemessage-input">Lời mời</label>
-                <textarea class="form-control" id="addcontact-invitemessage-input" rows="3"
-                  placeholder="Nhập nội dung lời mời" formControlName="invitemessage"></textarea>
-              </div>
+        
+            <div class="form-group">
+              <label for="addcontactemail-input">Email/Phone</label>
+              <input type="text" class="form-control" id="search-text" aria-describedby="search-text" 
+                [(ngModel)]="searchText" placeholder="Nhập Email hoặc Phone" formControlName="name"
+                autofocus>
+
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item" *ngFor="let c of userSearch | appFilter: searchText | slice:0:5;">
+                  <p (click)="getUser($event)" style="cursor: pointer" id="{{c}}">{{c}}</p> 
+                </li>
+              </ul>
+            </div>
+
+            <div class="form-group">
+              <label
+                for="addcontact-invitemessage-input">Lời mời</label>
+              <textarea class="form-control" id="addcontact-invitemessage-input" rows="3"
+                placeholder="Nhập nội dung lời mời" formControlName="invitemessage"></textarea>
+            </div>
             
           </div>
           <div class="modal-footer">
