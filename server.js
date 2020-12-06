@@ -200,5 +200,34 @@ app.get('/api/', (req, res) => {
     return res.redirect('/account/login');
   }
 });
+/***************************LockUser */
+function updateStatus(res, id, staus){
+  var params = {
+    TableName : tableName,
+    Key :{
+        "id" : Number(id)
+    },
+    UpdateExpression : "set #ts = :r",
+    ExpressionAttributeValues:{
+        ":r": staus
+    },
+    ExpressionAttributeNames:{
+      "#ts": "status"
+    }
+  };
+  docClient.update(params, function(err, data) {
+    if (err) {
+      return res.json(false)
+    } else {
+      return res.json(true)
+    }
+  });
+}
+app.post('/api/lockuser', (req, res) => {
+  updateStatus(res, req.body.id, 'lock')
+});
+app.post('/api/unlockuser', (req, res) => {
+  updateStatus(res, req.body.id, 'Đang hoạt động')
+});
 /***************************Server listening */
 server.listen(process.env.PORT || port);

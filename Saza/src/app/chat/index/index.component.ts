@@ -58,17 +58,16 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(private authFackservice: AuthfakeauthenticationService, private authService: AuthenticationService,
     private router: Router, public translate: TranslateService) { 
     this.authFackservice.getAll().pipe(takeUntil(this.destroy$)).subscribe(
-        data => {
-          // Assign the data to the data source for the table to render
-          this.dataSource = new MatTableDataSource(data['user']);
+      data => {
+        // Assign the data to the data source for the table to render
+        this.dataSource = new MatTableDataSource(data['user']);
 
-          this.dataSource.paginator = this.paginator;
-          this.dataSource.sort = this.sort;
-        },
-        error => {
-          console.error(error);
-        });
-
+        this.dataSource.paginator = this.paginator;
+        this.dataSource.sort = this.sort;
+      },
+      error => {
+        console.error(error);
+      });
   }
 
   ngAfterViewInit() {
@@ -122,6 +121,58 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
 
   SendMessage(value: string){
     console.log(value);
+  }
+
+  lockUser(id){
+    this.authFackservice.lockUser(id).pipe(takeUntil(this.destroy$)).subscribe(
+      data => {
+       if(data){
+        this.authFackservice.getAll().pipe(takeUntil(this.destroy$)).subscribe(
+          data => {
+            // Assign the data to the data source for the table to render
+            this.dataSource = new MatTableDataSource(data['user']);
+    
+            this.dataSource.paginator = this.paginator;
+            this.dataSource.sort = this.sort;
+          },
+          error => {
+            console.error(error);
+          });
+       }
+      },
+      error => {
+        console.error(error);
+      });
+  }
+
+  unlockUser(id){
+    this.authFackservice.unlockUser(id).pipe(takeUntil(this.destroy$)).subscribe(
+      data => {
+       if(data){
+        this.authFackservice.getAll().pipe(takeUntil(this.destroy$)).subscribe(
+          data => {
+            // Assign the data to the data source for the table to render
+            this.dataSource = new MatTableDataSource(data['user']);
+    
+            this.dataSource.paginator = this.paginator;
+            this.dataSource.sort = this.sort;
+          },
+          error => {
+            console.error(error);
+          });
+       }
+      },
+      error => {
+        console.error(error);
+      });
+  }
+
+  addUser(){
+    console.log('addUser()');
+  }
+
+  infoUser(id){
+
   }
 
   ngOnDestroy() {

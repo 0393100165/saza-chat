@@ -432,9 +432,10 @@
   <!-- Start Admin UserData -->
   <div class="w-100 h-100 m-2" id="admin-table" *ngIf='isAdmin'>
     <div>
-      <button type="button" class="float-right ri-pencil-line btn btn-info m-2"> Thêm</button>
+      <button type="button" class="float-right ri-pencil-line btn btn-info m-2" (click)="addUser()"> Thêm</button>
       <input class="form-control col-xs-10" matInput (keyup)="applyFilter($event)" placeholder="someone@gmail.com" #input>
     </div>
+
     <div class="example-container mat-elevation-z8 mt-4">
       <table mat-table class="table-hover" [dataSource]="dataSource" matSort>
         <!-- ID Column -->
@@ -518,8 +519,14 @@
         <!-- Star Column -->
         <ng-container matColumnDef="star" stickyEnd>
           <th mat-header-cell *matHeaderCellDef></th>
-          <td mat-cell *matCellDef="let element" class="text-center">
-            <button type="button" class="btn btn-danger">Block</button>
+          <td mat-cell *matCellDef="let row" class="text-center">&nbsp;&nbsp;&nbsp;
+            <button type="button" class="btn btn-danger" *ngIf="row.isAdministrator != 1 && row.status != 'lock'"
+            (click)="lockUser(row.id)">Khóa</button>    
+            <button type="button" class="btn btn-danger not-allowed" *ngIf="row.isAdministrator != 0" disabled>Khóa</button>
+            <button type="button" class="btn btn-success" *ngIf="row.status === 'lock'"
+            (click)="unlockUser(row.id)">Mở khóa</button>&nbsp;
+            <button type="button" class="btn btn-primary"
+            (click)="infoUser(row.id)">Sửa</button> 
           </td>
         </ng-container>
         
@@ -540,10 +547,12 @@
   .mat-form-field {
     font-size: 14px;
     width: 100%;
+    max-width: 5;
   }
   .example-container {
-  height: 100%;
-  overflow: auto;
+    height: 840px;
+    width: 1820px;
+    overflow: auto;
   }
   table {
     width: 2000px;
@@ -553,5 +562,9 @@
   }
   .mat-table-sticky:last-child {
     border-left: 1px solid #e0e0e0;
+  }
+  button:disabled {
+    cursor: not-allowed;
+    pointer-events: all !important;
   }
 </style>

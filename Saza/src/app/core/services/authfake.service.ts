@@ -75,9 +75,20 @@ export class AuthfakeauthenticationService {
         }));
     }
 
-
     getAllEmailPhone(){
         return this.http.get('/api/getAllEmailPhone').pipe(map(data => {
+            return data;
+        }));
+    }
+
+    lockUser(id) {
+        return this.http.post('/api/lockuser', {id}).pipe(map(data => {
+            return data;
+        }));
+    }
+
+    unlockUser(id) {
+        return this.http.post('/api/unlockuser', {id}).pipe(map(data => {
             return data;
         }));
     }
