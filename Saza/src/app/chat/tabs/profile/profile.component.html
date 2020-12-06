@@ -1,20 +1,6 @@
 <!-- Start profile content -->
 <div>
   <div class="px-4 pt-4">
-    <div class="user-chat-nav float-right">
-      <div class="dropdown" ngbDropdown>
-        <a href="javascript: void(0);" class="font-size-18 text-muted dropdown-toggle" ngbDropdownToggle
-          data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          <i class="ri-more-2-fill"></i>
-        </a>
-        <div class="dropdown-menu dropdown-menu-right" ngbDropdownMenu>
-          <a class="dropdown-item" href="#">{{'chat.tabs.profile.dropdown.edit' | translate}}</a>
-          <a class="dropdown-item" href="#">{{'chat.tabs.profile.dropdown.action' | translate}}</a>
-          <div class="dropdown-divider"></div>
-          <a class="dropdown-item" href="#">{{'chat.tabs.profile.dropdown.another' | translate}}n</a>
-        </div>
-      </div>
-    </div>
     <h4 class="mb-0">Thông tin cá nhân</h4>
   </div>
 
@@ -34,7 +20,7 @@
   <perfect-scrollbar class="p-4 user-profile-desc">
 
     <div class="text-muted">
-      <p class="mb-4">{{status_message}}</p>
+      <p class="mb-4 text-center">{{status_message}}</p>
     </div>
 
     <ngb-accordion #acc="ngbAccordion" activeIds="about" [closeOthers]="true">

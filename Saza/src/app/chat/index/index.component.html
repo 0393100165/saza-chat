@@ -17,7 +17,8 @@
     <!-- end navbar-brand-box -->
 
     <!-- Start side-menu nav -->
-    <div class="flex-lg-column my-auto">
+    <!-- User -->
+    <div class="flex-lg-column my-auto" *ngIf='!isAdmin'>
       <ul class="nav nav-pills side-menu-nav justify-content-center" role="tablist">
         <li class="nav-item" ngbTooltip="Thông tin">
           <a class="nav-link" id="pills-user-tab" (click)="activetab=1" href="javascript: void(0);"
@@ -51,44 +52,43 @@
         </li>
       </ul>
     </div>
+    <!-- admin -->
+    <div class="flex-lg-column my-auto" *ngIf='isAdmin'>
+      <ul class="nav nav-pills side-menu-nav justify-content-center" role="tablist">
+        <li class="nav-item" ngbTooltip="Thông tin">
+          <a class="nav-link" id="pills-user-tab" (click)="activetab=1 && showprofile = !showprofile" href="javascript: void(0);"
+            [ngClass]="{'active': activetab === 1}">
+            <i class="ri-user-2-line"></i>
+          </a>
+        </li>
+        <li class="nav-item" ngbTooltip="Thêm người dùng" placement="top">
+          <a class="nav-link" id="pills-contacts-tab" (click)="activetab=2" href="javascript: void(0);"
+            [ngClass]="{'active': activetab === 2}">
+            <i class="ri-contacts-line"></i>
+          </a>
+        </li>
+        <li class="nav-item" ngbTooltip="Quản lý người dùng">
+          <a class="nav-link" id="pills-groups-tab" (click)="activetab=3" href="javascript: void(0);"
+            [ngClass]="{'active': activetab === 3}">
+            <i class="ri-group-line"></i>
+          </a>
+        </li>
+      </ul>
+    </div>
     <!-- end side-menu nav -->
-
     <div class="flex-lg-column d-none d-lg-block">
       <ul class="nav side-menu-nav justify-content-center">
-        <!-- Chức năng bị hủy
-        <li class="nav-item btn-group dropup profile-user-dropdown" ngbDropdown placement="top-left">
-          <a class="nav-link dropdown-toggle" href="#" role="button" ngbDropdownToggle data-toggle="dropdown"
-            aria-haspopup="true" aria-expanded="false">
-            <i class="ri-global-line"></i>
-          </a>
-          <div class="dropdown-menu" ngbDropdownMenu>
-            <a class="dropdown-item" *ngFor="let item of listLang" (click)="setLanguage(item.lang)"
-              [ngClass]="{'active': lang === item.lang}" href="javascript: void(0);">
-              <img src="{{item.flag}}" alt="user-image" class="mr-1" height="12"> <span
-                class="align-middle">{{item.text}}</span>
-            </a>
-          </div>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link" id="light-dark" href="//chatvia-light.angular.themesbrand.com" ngbTooltip="Light Mode">
-            <i class="ri-sun-line theme-mode-icon"></i>
-          </a>
-        </li>
-
-        -->
-
         <li class="nav-item btn-group dropup profile-user-dropdown" ngbDropdown placement="top-left">
           <a class="nav-link dropdown-toggle" href="#" role="button" ngbDropdownToggle data-toggle="dropdown"
             aria-haspopup="true" aria-expanded="false">
             <img src="{{url_avatar}}" alt="" class="profile-user rounded-circle">
           </a>
           <div class="dropdown-menu" ngbDropdownMenu>
-            <a class="dropdown-item" (click)="activetab=4" href="javascript: void(0);">Liêc lạc <i
+            <a class="dropdown-item" (click)="activetab=4" href="javascript: void(0);" *ngIf='!isAdmin'>Liêc lạc <i
                 class="ri-profile-line float-right text-muted"></i></a>
-            <a class="dropdown-item" (click)="activetab=5" href="javascript: void(0);">Cài đặt <i
+            <a class="dropdown-item" (click)="activetab=5" href="javascript: void(0);" *ngIf='!isAdmin'>Cài đặt <i
                 class="ri-settings-3-line float-right text-muted"></i></a>
-            <div class="dropdown-divider"></div>
+            <div class="dropdown-divider" *ngIf='!isAdmin'></div>
             <a class="dropdown-item" href="javascript: void(0);"
               (click)="logout()">Đăng xuất<i
                 class="ri-logout-circle-r-line float-right text-muted"></i></a>
@@ -99,8 +99,9 @@
     <!-- Side menu user -->
   </div>
   <!-- start chat-leftsidebar -->
-  <div class="chat-leftsidebar mr-lg-1">
-    <div class="tab-content">
+  <div class="chat-leftsidebar mr-lg-1" *ngIf='showprofile || !isAdmin'>
+    <!-- user -->
+    <div class="tab-content" *ngIf='!isAdmin'>
       <!-- Start Profile tab-pane -->
       <div id="pills-user" role="tabpanel" aria-labelledby="pills-user-tab" *ngIf="activetab === 1">
         <app-profile></app-profile>
@@ -132,10 +133,30 @@
       <!-- End settings tab-pane -->
     </div>
 
+    <!-- Admin -->
+    <div class="tab-content" *ngIf='isAdmin'>
+      <!-- Start Profile tab-pane -->
+      <div id="pills-user" role="tabpanel" aria-labelledby="pills-user-tab" *ngIf="activetab === 1 || showprofile">
+        <app-profile></app-profile>
+      </div>
+      <!-- End Profile tab-pane-->
+
+      <!-- Start groups tab-pane -->
+      <div id="pills-groups" role="tabpanel" aria-labelledby="pills-groups-tab" *ngIf="activetab === 3">
+        <!-- Todo-Thêm người dùng -->
+      </div>
+      <!-- End groups tab-pane -->
+
+      <!-- Start contacts tab-pane -->
+      <div id="pills-contacts" role="tabpanel" aria-labelledby="pills-contacts-tab" *ngIf="activetab === 4">
+        <!-- Todo-Quản lý người dùng -->
+      </div>
+      <!-- End contacts tab-pane -->
+    </div>
   </div>
 
   <!-- Start User chat -->
-  <div class="user-chat w-100" id="chat-room">
+  <div class="user-chat w-100" id="chat-room" *ngIf='!isAdmin'>
     <div class="d-lg-flex">
 
       <!-- start chat conversation section -->
@@ -365,7 +386,10 @@
           <div class="row no-gutters">
             <div class="col">
               <div>
-                <input type="text" class="form-control form-control-lg bg-light border-light"
+                <input type="text" class="form-control-lg bg-light border-light"
+                  #box
+                  (keyup.enter)="SendMessage(box.value)"
+                  (blur)="SendMessage(box.value)"
                   placeholder="Enter Message...">
               </div>
             </div>
@@ -403,4 +427,131 @@
       <app-profile-detail></app-profile-detail>
     </div>
   </div>
+
+
+  <!-- Start Admin UserData -->
+  <div class="w-100 h-100 m-2" id="admin-table" *ngIf='isAdmin'>
+    <div>
+      <button type="button" class="float-right ri-pencil-line btn btn-info m-2"> Thêm</button>
+      <input class="form-control col-xs-10" matInput (keyup)="applyFilter($event)" placeholder="someone@gmail.com" #input>
+    </div>
+    <div class="example-container mat-elevation-z8 mt-4">
+      <table mat-table class="table-hover" [dataSource]="dataSource" matSort>
+        <!-- ID Column -->
+        <ng-container matColumnDef="id" sticky>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
+          <td mat-cell *matCellDef="let row"> {{row.id}} </td>
+        </ng-container>
+    
+        <!-- Progress Column -->
+        <ng-container matColumnDef="username">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> User name </th>
+          <td mat-cell *matCellDef="let row"> {{row.username}} </td>
+        </ng-container>
+    
+        <!-- fullname Column -->
+        <ng-container matColumnDef="fullname">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Full name </th>
+          <td mat-cell *matCellDef="let row"> {{row.fullname}} </td>
+        </ng-container>
+    
+        <!-- nickname Column -->
+        <ng-container matColumnDef="nickname">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Nickname </th>
+          <td mat-cell *matCellDef="let row" [style.color]="row.nickname"> {{row.nickname}} </td>
+        </ng-container>
+
+         <!-- isAdministrator Column -->
+         <ng-container matColumnDef="isAdministrator">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Admin </th>
+          <td mat-cell *matCellDef="let row" [style.color]="row.isAdministrator"> {{row.isAdministrator}} </td>
+        </ng-container>
+
+        <!-- status Column -->
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> status </th>
+          <td mat-cell *matCellDef="let row" [style.color]="row.status"> {{row.status}} </td>
+        </ng-container>
+
+        <!-- sex Column -->
+        <ng-container matColumnDef="sex">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Sex </th>
+          <td mat-cell *matCellDef="let row" [style.color]="row.sex"> {{row.sex}} </td>
+        </ng-container>
+
+        <!-- email Column -->
+        <ng-container matColumnDef="email">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Email </th>
+          <td mat-cell *matCellDef="let row" [style.color]="row.email"> {{row.email}} </td>
+        </ng-container>
+
+        <!-- phone Column -->
+        <ng-container matColumnDef="phone">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Phone </th>
+          <td mat-cell *matCellDef="let row" [style.color]="row.phone"> {{row.phone}} </td>
+        </ng-container>
+
+        <!-- address Column -->
+         <ng-container matColumnDef="address">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Address </th>
+          <td mat-cell *matCellDef="let row" [style.color]="row.address"> {{row.address}} </td>
+        </ng-container>
+
+        <!-- birthday Column -->
+         <ng-container matColumnDef="birthday">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Birthday </th>
+          <td mat-cell *matCellDef="let row" [style.color]="row.birthday"> {{row.birthday}} </td>
+        </ng-container>
+
+         <!-- status_message Column -->
+         <ng-container matColumnDef="status_message">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Status message </th>
+          <td mat-cell *matCellDef="let row" [style.color]="row.status_message"> {{row.status_message}} </td>
+        </ng-container>
+
+         <!-- url_avatar Column -->
+         <ng-container matColumnDef="url_avatar">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Url avatar </th>
+          <td mat-cell *matCellDef="let row" [style.color]="row.url_avatar"> {{row.url_avatar}} </td>
+        </ng-container>
+
+        <!-- Star Column -->
+        <ng-container matColumnDef="star" stickyEnd>
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let element" class="text-center">
+            <button type="button" class="btn btn-danger">Block</button>
+          </td>
+        </ng-container>
+        
+        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    
+        <!-- Row shown when there is no matching data. -->
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell" colspan="4">No data</td>
+        </tr>
+      </table>
+    </div>
+  </div>
 </div>
+
+<!-- Custom -->
+<style>
+  .mat-form-field {
+    font-size: 14px;
+    width: 100%;
+  }
+  .example-container {
+  height: 100%;
+  overflow: auto;
+  }
+  table {
+    width: 2000px;
+  }
+  .mat-table-sticky:first-child {
+    border-right: 1px solid #e0e0e0;
+  }
+  .mat-table-sticky:last-child {
+    border-left: 1px solid #e0e0e0;
+  }
+</style>

@@ -69,6 +69,13 @@ export class AuthfakeauthenticationService {
         }));
     }
 
+    getAll() {
+        return this.http.get('/api/getAll').pipe(map(data => {
+            return data;
+        }));
+    }
+
+
     getAllEmailPhone(){
         return this.http.get('/api/getAllEmailPhone').pipe(map(data => {
             return data;

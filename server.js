@@ -49,6 +49,23 @@ function login(res, username, password){
     }
   });
 }
+function getAll(res){
+  var params = {
+      TableName : tableName,
+  };
+  docClient.scan(params, function (err, data) {
+    if (err) {
+        console.log(JSON.stringify(err, null, 2));
+    } else {
+      return res.json({
+        user: data.Items
+      })      
+    }
+  });
+}
+app.get('/api/getall', (req, res) =>{
+  getAll(res)
+});
 /***************************FindUserbyUsername */
 function FindUserbyUsername(res, username){
   var params = {

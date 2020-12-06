@@ -12,6 +12,8 @@ import { IndexComponent } from './index/index.component';
 import { ProfileDetailComponent } from './profile-detail/profile-detail.component';
 import { TranslateModule } from '@ngx-translate/core';
 
+import {MatTableModule} from '@angular/material/table';
+
 @NgModule({
   declarations: [IndexComponent, ProfileDetailComponent],
   imports: [
@@ -22,7 +24,8 @@ import { TranslateModule } from '@ngx-translate/core';
     TabsModule,
     NgbTooltipModule,
     NgbDropdownModule,
-    TranslateModule
+    TranslateModule,
+    MatTableModule
   ],
   exports: [ProfileDetailComponent]
 })
