@@ -1,0 +1,25 @@
+{
+  "name": "saza-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "@types/socket.io": "^2.1.11",
+    "aws-sdk": "^2.799.0",
+    "cookie-parser": "^1.4.5",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "socket.io": "^2.3.0"
+  },
+  "devDependencies": {
+
+    "nodemon": "^2.0.6"
+  },
+  "scripts": {
+    "dev": "nodemon ./server.js localhost 3000",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
