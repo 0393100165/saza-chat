@@ -386,10 +386,9 @@
           <div class="row no-gutters">
             <div class="col">
               <div>
-                <input type="text" class="form-control bg-light border-light"
+                <input type="text" class="form-control bg-light border-light" autofocus
                   #box
-                  (keyup.enter)="SendMessage(box.value)"
-                  (blur)="SendMessage(box.value)"
+                  (keyup.enter)="sendMessage(box.value); box.value=''"
                   placeholder="Enter Message...">
               </div>
             </div>

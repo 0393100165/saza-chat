@@ -150,8 +150,9 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
     this.router.navigate(['/account/login']);
   }
 
-  SendMessage(value: string){
+  sendMessage(value: string){
     console.log(value);
+
   }
 
   lockUser(id){
@@ -232,7 +233,7 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     }
     //Username đã có
-    this.authFackservice.FindUserbyUsername(username)
+    this.authFackservice.findUserbyUsername(username)
       .pipe(takeUntil(this.destroy$)).subscribe(data => {
         if(data != null)
           return this.error = 'Tên người dùng đã tồn tại'

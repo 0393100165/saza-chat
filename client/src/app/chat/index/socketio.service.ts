@@ -19,7 +19,9 @@ export class SocketioService {
     })
     this.socket.on('disconnect', function() {
       console.log('disconnect');
-      
+    })
+    this.socket.on('friendRequest', e =>{
+      console.log(e);
     })
   }
   listenMessage(msg: string): Observable<any> {
@@ -67,7 +69,7 @@ export class SocketioService {
 
 
   }
-  SendMessage(message : string){
+  sendMessage(message : string){
     //this.socket.connect()
     console.log("messss"+message);
     
@@ -84,8 +86,12 @@ export class SocketioService {
    // message = "";
   //   var roomId = "123456789";
     this.socket.emit("Client-Send-Message", { message: message } );
-    
-    
   }
 
+
+  sendFriend(id, usernameReceived, msg){
+    console.log('sendFriend', id, usernameReceived, msg);
+    
+    this.socket.emit('sendFriend', {id, usernameReceived, msg});
+  }
 }

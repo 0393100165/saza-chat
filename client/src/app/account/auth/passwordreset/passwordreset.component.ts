@@ -54,7 +54,7 @@ export class PasswordresetComponent implements OnInit, OnDestroy {
     }
     var username = this.f.username.value
     //Kiểm tra username có tồn tại ko
-    this.authFackservice.FindUserbyUsername(username).pipe(takeUntil(this.destroy$)).subscribe(data => {
+    this.authFackservice.findUserbyUsername(username).pipe(takeUntil(this.destroy$)).subscribe(data => {
       if(Object.values(data)[0] === null)
         return this.error = 'Tên người dùng không tồn tại'
     })

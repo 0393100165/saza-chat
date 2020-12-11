@@ -64,14 +64,20 @@ export class AuthfakeauthenticationService {
         }));
     }
 
-    FindUserbyUsername(username:string) {
+    findUserbyUsername(username:string) {
         return this.http.post('/api/findbyusername', {username}).pipe(map(data => {
             return data;
         }));
     }
 
-    SendFriendRequest(usernameSend: string, usernameReceived: string) {
-        return this.http.post('/api/sendfriendrequest', {usernameSend, usernameReceived}).pipe(map(data => {
+    sendFriendRequest(id: string, usernameReceived: string) {
+        return this.http.post('/api/sendfriendrequest', {id, usernameReceived}).pipe(map(data => {
+            return data;
+        }));
+    }
+
+    getSendFriendRequest(id: string) {
+        return this.http.post('/api/getSendfriendrequest', {id}).pipe(map(data => {
             return data;
         }));
     }

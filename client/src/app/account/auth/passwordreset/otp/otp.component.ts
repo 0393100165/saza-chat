@@ -106,7 +106,7 @@ export class OTPResComponent implements OnInit, OnDestroy {
 
     //Kiểm tra username đã tồn tại chưa
     var username = this.routes.snapshot.paramMap.get('username')
-    this.authFackservice.FindUserbyUsername(username)
+    this.authFackservice.findUserbyUsername(username)
         .pipe(takeUntil(this.destroy$)).subscribe(data => {
           if(data === null)
             return this.error = 'Tên người dùng không tồn tại'

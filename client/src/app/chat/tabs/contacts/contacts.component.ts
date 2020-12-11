@@ -9,6 +9,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { AuthfakeauthenticationService } from '../../../core/services/authfake.service';
+import {SocketioService} from '../../index/socketio.service';
 
 @Component({
   selector: 'app-contacts',
@@ -30,17 +31,19 @@ export class ContactsComponent implements OnInit, OnDestroy {
   error = ''
 
   myName = ''
+  id = ''
 
   destroy$: Subject<boolean> = new Subject<boolean>();
 
   constructor(private modalService: NgbModal, public translate: TranslateService, private formBuilder: FormBuilder,
-    private authFackservice: AuthfakeauthenticationService) { }
+    private authFackservice: AuthfakeauthenticationService, private socketService : SocketioService) { }
 
   ngOnInit(): void {
     var data = localStorage.getItem('currentUser')    
     var user = JSON.parse(data)[0]
 
     this.myName = user.fullname;
+    this.id = user.id
 
     this.contactForm = this.formBuilder.group({
       name: ['', Validators.required],
@@ -59,6 +62,18 @@ export class ContactsComponent implements OnInit, OnDestroy {
       if (index > -1) {
         this.userSearch.splice(index, 1);
       }
+      //Bỏ email số đã add fr
+      this.authFackservice.getSendFriendRequest(this.id).pipe(takeUntil(this.destroy$)).subscribe( data => {
+        for(var e in data){
+          var index = this.userSearch.indexOf(data[e], 0);
+          if (index > -1) {
+            this.userSearch.splice(index, 1);
+          }
+        }
+      },
+      error => {
+        console.error(error);
+      });
     },
     error => {
       console.error(error);
@@ -79,6 +94,7 @@ export class ContactsComponent implements OnInit, OnDestroy {
     this.contactsList = Object.keys(grouped).map(key => ({ key, contacts: grouped[key] }));
   }
 
+  get f() { return this.contactForm.controls; }
 
   /**
    * Contacts modal open
@@ -90,18 +106,20 @@ export class ContactsComponent implements OnInit, OnDestroy {
   }
 
   onSubmit(){
-    var name = this.searchText
-    this.authFackservice.FindUserbyUsername(name)
+    var usernameReceived = this.searchText
+    
+    this.authFackservice.findUserbyUsername(usernameReceived)
       .pipe(takeUntil(this.destroy$)).subscribe(data => {
         if(data['user'] === null)
           return this.error = 'Người dùng không tồn tại'
         else{
         //send
-        this.authFackservice.SendFriendRequest(this.myName, name)
-          .pipe(takeUntil(this.destroy$)).subscribe(data => {
-            console.log(data);  
-          })
-        this.modalService.dismissAll()
+          this.socketService.sendFriend(this.id, usernameReceived, this.f.invitemessage.value)
+          var index = this.userSearch.indexOf(usernameReceived, 0);
+          if (index > -1) 
+              this.userSearch.splice(index, 1);
+          this.searchText = ''
+          this.modalService.dismissAll()
         }
       })
   }

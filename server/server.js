@@ -17,33 +17,9 @@ app.use(cors({
 }));
 app.use(bodyParser.json());
 app.use(cookieParser())
-app.use(express.static(process.cwd()+'/Saza/dist/Chatvia/'));
 
 /***************************Server listening */
-//http.listen(3000,()=> console.log('lestening'))
-server.listen(process.env.PORT || port, ()=> {
-  console.log('Server is running on port ', port)
-  });
-  
-  
-  // app.use((req, res, next) => {
-  //   res.header("Access-Control-Allow-Origin", "*");
-  //   res.header("Access-Control-Allow-Credentials", "true");
-  //   res.header(
-  //     "Access-Control-Allow-Methods",
-  //     "GET",
-  //     "POST",
-  //     "DELETE",
-  //     "PUT",
-  //     "OPTIONS"
-  //   );
-  //   res.header(
-  //     "Access-Control-Allow-Headers",
-  //     "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-  //   );
-  //   next();
-  // });
-
+server.listen(process.env.PORT || port);
 /***************************DynamoDB */
 var AWS = require('aws-sdk');
 AWS.config.update({
@@ -99,7 +75,7 @@ app.get('/api/getall', (req, res) =>{
   getAll(res)
 });
 /***************************FindUserbyUsername */
-function FindUserbyUsername(res, username){
+function findUserbyUsername(res, username){
   var params = {
       TableName : tableName,
       FilterExpression  : 'username = :u',
@@ -124,7 +100,7 @@ function FindUserbyUsername(res, username){
   });
 }
 app.post('/api/findbyusername', (req, res) =>{
-  FindUserbyUsername(res, req.body.username)
+  findUserbyUsername(res, req.body.username)
 });
 /***************************logging */
 app.post('/api/login', (req, res) =>{
@@ -200,10 +176,7 @@ function getAllEmailPhone(res){
         console.log(JSON.stringify(err, null, 2));
     } else {
       data.Items.forEach(function(itemdata) {
-        if(itemdata.phone != ' ')
-          userData.push(itemdata.phone)
-        if(itemdata.email != ' ')
-          userData.push(itemdata.email)
+          userData.push(itemdata.username)
       });
       // continue scanning if we have more items
       if (typeof data.LastEvaluatedKey != 'undefined') {
@@ -214,40 +187,87 @@ function getAllEmailPhone(res){
     }
     return res.json({userData})
   });
-
 }
 app.get('/api/getAllEmailPhone', (req, res) => {
   docClient.scan(getAllEmailPhone(res));
 })
 /*************************Friend request */
-function sendfriendrequest(res, usernameSend, usernameReceived){
-  console.log('send');
+function sendfriendrequest(id, usernameReceived, msg){
+  /******Tim` username */
+  var user
   var params = {
     TableName : tableName,
-    Key :{
-        'username' : usernameSend
-    },
-    UpdateExpression : 'SET #s = list_append(if_not_exists(#s, :empty_list), :r)',
+    FilterExpression  : 'username = :u',
     ExpressionAttributeValues:{
-        '#s': 'sendFr'
+        ':u': usernameReceived
     },
-    ExpressionAttributeValues: {
-      ':r': [usernameReceived],
-      ':empty_list': []
-    },
-    ReturnValues: 'UPDATED_NEW'
   };
-  docClient.update(params, function(err, data) {
+  docClient.scan(params, function (err, data) {
     if (err) {
-      console.log(err);
-      return res.json(false)
+        console.log(JSON.stringify(err, null, 2));
     } else {
-      return res.json(true)
+      if(data.Items.length === 0){
+        user = null
+      } else{
+        user = data.Items
+        /*********Luu request ben nhan */
+        var paramReceived = {
+        TableName : tableName,
+        Key :{
+            'id' : user[0].id
+        },
+        UpdateExpression : 'SET #s = list_append(if_not_exists(#s, :empty_list), :r)',
+        ExpressionAttributeNames:{
+            '#s': 'receiveFr'
+        },
+        ExpressionAttributeValues: {
+          ':r': [usernameReceived, msg],
+          ':empty_list': []
+        },
+          ReturnValues: 'UPDATED_NEW'
+        };
+        docClient.update(paramReceived, function(err, data) {});
+      }
+    }
+    /*********Luu request ben gui */
+    var paramSend = {
+      TableName : tableName,
+      Key :{
+          'id' : id
+      },
+      UpdateExpression : 'SET #s = list_append(if_not_exists(#s, :empty_list), :r)',
+      ExpressionAttributeNames:{
+          '#s': 'sendFr'
+      },
+      ExpressionAttributeValues: {
+        ':r': [user[0].username],
+        ':empty_list': []
+      },
+      ReturnValues: 'UPDATED_NEW'
+    };
+    docClient.update(paramSend, function(err, data) {});
+  });
+}
+
+/************** getSendfriendrequest*/
+function getSendfriendrequest(res, id){
+  var params = {
+    TableName : tableName,
+    FilterExpression  : 'id = :u',
+      ExpressionAttributeValues:{
+          ':u': id
+      },
+  };
+  docClient.scan(params, function (err, data) {
+    if (err) {
+        console.log(JSON.stringify(err, null, 2));
+    } else {
+      return res.json(data.Items[0].sendFr)
     }
   });
 }
-app.post(('/api/sendfriendrequest'), (req, res) => {
-  sendfriendrequest(res, req.body.usernameSend, req.body.usernameReceived)
+app.post(('/api/getSendfriendrequest'), (req, res) => {
+  getSendfriendrequest(res, req.body.id)
 })
 /***************************LockUser */
 function updateStatus(res, id, staus){
@@ -280,20 +300,15 @@ app.post('/api/unlockuser', (req, res) => {
 });
 /***************************Chat */
 io.on('connection', function(socket) {
- 
-  console.log('a user connected');
-  //  socket.on('message', (msg) => {
-  //  console.log('mess',msg);
-  // socket.broadcast.emit('message-broadcast',msg);
-
-  //  });
-  socket.emit('XXX', 'alo')
+  //Mess
   socket.on("Client-Send-Message",function(message){
     socket.emit("Server-Send-Message",message);
     console.log(message);
-    //socket.to(roomId).emit("Server-Send-Message",message);
   });
 
+  //Friend request
+  socket.on('sendFriend', ({id, usernameReceived, msg}) => {
+    sendfriendrequest(id, usernameReceived, msg)
+    socket.emit('friendRequest', id)
+  })
 });
-// const server = http.createServer(app);
-// const io = socketio(server);
