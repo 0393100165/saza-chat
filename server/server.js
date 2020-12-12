@@ -1,5 +1,4 @@
 const port = 3000;
-const HOST = 'localhost';
 const bodyParser = require("body-parser");
 const jwt = require("jsonwebtoken")
 const cors = require('cors');
@@ -26,13 +25,13 @@ AWS.config.update({
   region: 'ap-southeast-1',
   endpoint: 'http://dynamodb.ap-southeast-1.amazonaws.com',
 });
-var dynamodb = new AWS.DynamoDB();
 var docClient = new AWS.DynamoDB.DocumentClient();
-var tableName = 'User';
+var tableUser = 'User';
+var tableMessage = 'Message'
 /***************************FindUser */
 function login(res, username, password) {
   var params = {
-    TableName: tableName,
+    TableName: tableUser,
     FilterExpression: 'username = :u and password = :p',
     ExpressionAttributeValues: {
       ':u': username,
@@ -59,7 +58,7 @@ function login(res, username, password) {
 }
 function getAll(res) {
   var params = {
-    TableName: tableName,
+    TableName: tableUser,
   };
   docClient.scan(params, function (err, data) {
     if (err) {
@@ -77,7 +76,7 @@ app.get('/api/getall', (req, res) => {
 /***************************FindUserbyUsername */
 function findUserbyUsername(res, username) {
   var params = {
-    TableName: tableName,
+    TableName: tableUser,
     FilterExpression: 'username = :u',
     ExpressionAttributeValues: {
       ':u': username
@@ -165,7 +164,7 @@ app.post('/api/register', (req, res) => {
 function getAllEmailPhone(res) {
   const userData = []
   var params = {
-    TableName: tableName,
+    TableName: tableUser,
     FilterExpression: 'isAdministrator = :u',
     ExpressionAttributeValues: {
       ':u': 0
@@ -194,7 +193,7 @@ app.get('/api/getAllEmailPhone', (req, res) => {
 /************get user by id */
 function getUserbyID(res, id) {
   var params = {
-    TableName: tableName,
+    TableName: tableUser,
     FilterExpression: 'id = :u',
     ExpressionAttributeValues: {
       ':u': id
@@ -220,7 +219,7 @@ function sendfriendrequest(id, usernameReceived, msg) {
   /******Tim` username */
   var userReceived, userSend
   var params = {
-    TableName: tableName,
+    TableName: tableUser,
     FilterExpression: 'username = :u',
     ExpressionAttributeValues: {
       ':u': usernameReceived
@@ -233,7 +232,7 @@ function sendfriendrequest(id, usernameReceived, msg) {
       userReceived = data.Items[0]
       /*********Luu request ben nhan */
       var params = {
-        TableName: tableName,
+        TableName: tableUser,
         FilterExpression: 'id = :u',
         ExpressionAttributeValues: {
           ':u': id
@@ -242,7 +241,7 @@ function sendfriendrequest(id, usernameReceived, msg) {
       docClient.scan(params, function (err, data) {
         userSend = data.Items[0]
         var paramReceived = {
-          TableName: tableName,
+          TableName: tableUser,
           Key: {
             'id': userReceived.id
           },
@@ -261,7 +260,7 @@ function sendfriendrequest(id, usernameReceived, msg) {
     }
     /*********Luu request ben gui */
     var paramSend = {
-      TableName: tableName,
+      TableName: tableUser,
       Key: {
         'id': id
       },
@@ -281,7 +280,7 @@ function sendfriendrequest(id, usernameReceived, msg) {
 /************** getSendfriendrequest*/
 function getSendfriendrequest(res, id) {
   var params = {
-    TableName: tableName,
+    TableName: tableUser,
     FilterExpression: 'id = :u',
     ExpressionAttributeValues: {
       ':u': id
@@ -302,7 +301,7 @@ app.post(('/api/getSendfriendrequest'), (req, res) => {
 function getReceiveFriendRequest(res, username) {
   friendReq = []
   var params = {
-    TableName: tableName,
+    TableName: tableUser,
     FilterExpression: 'username = :u',
     ExpressionAttributeValues: {
       ':u': username
@@ -349,7 +348,7 @@ app.post('/api/getReceiveFriendRequest', (req, res) => {
 /***************************LockUser */
 function updateStatus(res, id, staus) {
   var params = {
-    TableName: tableName,
+    TableName: tableUser,
     Key: {
       'id': Number(id)
     },
@@ -382,7 +381,7 @@ io.on('connection', function (socket) {
     let findRoom = function (idIUserSend, idIUserRecieve) {
       console.log('*************');
       var params = {
-        TableName: 'Message',
+        TableName: tableMessage,
       };
       docClient.scan(params, function (err, data) {
         if (err) {
@@ -435,16 +434,11 @@ io.on('connection', function (socket) {
   })
   socket.on("Client-Send-Message", async function (idUserSend, message, idUserRecieve) {
     await saveChat(idUserSend, message, idUserRecieve);
-    //console.log('mes',message,'room',idroom);
     console.log('sv', message);
-    // console.log('sv-receive',message);
-    // socket.emit("Server-Send-Message",message);
-    // console.log('sv-send',message);
-    // //socket.to(roomId).emit("Server-Send-Message",message);
     let findRoom = function (idIUserSend, idIUserRecieve) {
       console.log('*************');
       var params = {
-        TableName: 'Message',
+        TableName: tableMessage,
       };
       docClient.scan(params, function (err, data) {
         if (err) {
@@ -491,6 +485,7 @@ io.on('connection', function (socket) {
     findRoom(idUserSend, idUserRecieve);
   });
 
+  getChat(875036, 231745, socket)
   //Friend request
   socket.on('sendFriend', ({ id, usernameReceived, msg }) => {
     sendfriendrequest(id, usernameReceived, msg)
@@ -501,13 +496,12 @@ io.on('connection', function (socket) {
 /***************************saveChat */
 let saveChat = function (idIUserSend, msg, idIUserRecieve) {
   var params = {
-    TableName: 'Message',
+    TableName: tableMessage,
   };
   docClient.scan(params, function (err, data) {
     if (err) {
       console.log(JSON.stringify(err, null, 2));
     } else {
-      //console.log(data);
       if (data.Items.length === 0) {
         console.log('null data');
       } else {
@@ -527,10 +521,10 @@ let saveChat = function (idIUserSend, msg, idIUserRecieve) {
                   var date = today.getDate() + '-' + (today.getMonth() + 1) + '-' + today.getFullYear();
                   var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
                   var dateTime = date + ' ' + time;
-                  var id = itemData.idRoom.toString();
+                  var id = itemData.idRoom
                   //save chat
                   var paramReceived = {
-                    TableName: 'Message',
+                    TableName: tableMessage,
                     Key: {
                       'idRoom': id
                     },
@@ -544,12 +538,12 @@ let saveChat = function (idIUserSend, msg, idIUserRecieve) {
                     },
                     ReturnValues: 'UPDATED_NEW'
                   };
+                  console.log(paramReceived);
                   docClient.update(paramReceived, function (err, data) {
                     if (err) {
                       console.log("mess::save::error - " + JSON.stringify(err, null, 2));
                     } else {
                       console.log("mess::save::success");
-                      //console.log('123'+data);
                     }
                   });
                 }
@@ -564,10 +558,10 @@ let saveChat = function (idIUserSend, msg, idIUserRecieve) {
   });
 }
 /***************************getChat */
-let getChat = function (idIUserSend, idIUserRecieve, socket) {
+function getChat (idIUserSend, idIUserRecieve, socket) {
   //console.log('*************');
   var params = {
-    TableName: 'Message',
+    TableName: tableMessage,
   };
   docClient.scan(params, function (err, data) {
     if (err) {
@@ -594,7 +588,7 @@ let getChat = function (idIUserSend, idIUserRecieve, socket) {
                   // })
                   console.log('id' + itemData.idRoom);
                   var params = {
-                    TableName: 'Message',
+                    TableName: tableMessage,
                     FilterExpression: "idRoom = :u",
                     ExpressionAttributeValues: {
                       ":u": itemData.idRoom
@@ -626,5 +620,4 @@ let getChat = function (idIUserSend, idIUserRecieve, socket) {
     }
   });
 }
-
 /***************************findroom */

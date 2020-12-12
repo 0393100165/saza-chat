@@ -34,13 +34,6 @@ export interface UserData {
   url_avatar: string
 }
 
-export interface friendReq {
-  id?: number
-  fullname?: string
-  msg?: string
-  url_avatar?: string
-}
-
 @Component({
   selector: 'app-index',
   templateUrl: './index.component.html',
@@ -63,6 +56,7 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
   Messages: Message[];
   url_avatar = '';
   user = null
+  userRecived = null
   isAdmin: boolean = false;
   showprofile: boolean = false;
   friendRequest: any = []
@@ -124,7 +118,21 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
       admin: [false],
     });
 
-    this.socketService.joinRoom('0333338662', '0798369251');
+    function delay(ms: number) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    //Ngọc - Black
+    var idRecived
+    if (user.id === 875036) {
+      idRecived = 231745
+    } else {
+      idRecived = 875036
+    }
+    this.authFackservice.getUserbyID(idRecived).pipe(takeUntil(this.destroy$)).subscribe((data) => {
+      this.userRecived = data['user'][0]
+    })
+    this.socketService.joinRoom(875036, 231745);
     // this.socketService.setupSocketConnection();
     this.socketService.listenMessage('Server-Send-Message').pipe(takeUntil(this.destroy$)).subscribe((data) => {
       var socketID = data[1];
@@ -132,13 +140,11 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
 
       if (socketID != this.socketService.getIdSocket()) {
         if (data[0]) {
-          const element = document.createElement('li');
-          element.innerHTML = data[0];
-          element.style.background = 'white';
-          element.style.padding = '15px 30px';
-          element.style.margin = '10px';
-          element.style.textAlign = 'left';
-          document.getElementById('message-list').appendChild(element);
+          var time = this.getTime(new Date())
+          this.Messages.push({
+            name: this.userRecived.fullname, message: data[0], align: 'left',
+            profile: this.userRecived.url_avatar, time: time
+          })
         }
       }
     })
@@ -153,6 +159,39 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
           this.friendRequest = data
         })
     })
+
+    this.socketService.getChat().pipe(takeUntil(this.destroy$)).subscribe(async (data) => {
+      await delay(1000)
+      var count = 0
+      var name
+      var message
+      var align
+      var profile
+      var time
+      data.forEach(async e => {
+        switch (count % 3) {
+          case 0:
+            if (e === this.user.id) {
+              name = this.user.fullname
+              profile = this.user.url_avatar
+              align = 'right'
+            } else {
+              name = this.userRecived.fullname
+              profile = this.userRecived.url_avatar
+              align = 'left'
+            }
+            break
+          case 1:
+            message = e
+            break
+          case 2:
+            time = e
+            this.Messages.push({ name, message, align, profile, time})
+            break
+        }
+        count++
+      });
+    })
   }
 
   get f() { return this.userForm.controls; }
@@ -166,7 +205,7 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   // tslint:disable-next-line: typedef
   showUserProfile() {
-    document.getElementById('profile-detail').style.display = 'block';
+    // document.getElementById('profile-detail').style.display = 'block';
   }
 
   /**
@@ -187,19 +226,28 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
 
   sendMessage(value: string) {
     console.log(value);
-    
     if (value) {
-      const element = document.createElement('li');
-      element.innerHTML = value;
-      element.style.background = 'white';
-      element.style.padding = '15px 30px';
-      element.style.margin = '10px';
-      element.style.textAlign = 'right';
-      document.getElementById('message-list').appendChild(element);
-
+      var time = this.getTime(new Date())
+      this.Messages.push({
+        name: this.user.fullname, message: value, align: 'right',
+        profile: this.url_avatar, time: time
+      })
       //Gui _ Nhan
-      this.socketService.SendMessage('0333338662', '0798369251', value);
+      this.socketService.SendMessage(this.user.id, this.userRecived.id, value);
     }
+  }
+
+  addZero(i) {
+    if (i < 10) {
+      i = "0" + i;
+    }
+    return i;
+  }
+  getTime(date) {
+    var d = date
+    var h = this.addZero(d.getHours());
+    var m = this.addZero(d.getMinutes());
+    return h + ":" + m;
   }
 
   lockUser(id) {

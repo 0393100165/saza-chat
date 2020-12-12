@@ -34,13 +34,21 @@ export class SocketioService {
     )
   }
 
-  joinRoom(idUserSend:string , idUserRecieve){
+  getChat(): Observable<any> {    
+    return fromEventPattern(
+      (handler) => {
+        this.socket.on('getMsg', handler);
+      }
+    )
+  }
+
+  joinRoom(idUserSend, idUserRecieve){
     //console.log(room);
     
     this.socket.emit('join-room',idUserSend,idUserRecieve);
   }
   
-  SendMessage(idUserSend:string,idUserRecieve:string ,message : string){
+  SendMessage(idUserSend, idUserRecieve ,message : string){
     //this.socket.connect()
     console.log("messss -client send"+message);
    
@@ -92,7 +100,6 @@ export class SocketioService {
       console.log('disconnect');
       me.socket.open();
     });
-
 
   }
   sendMessage(message : string){
