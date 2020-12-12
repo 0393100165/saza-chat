@@ -15,7 +15,6 @@ export class SocketioService {
     //this.socket  = io('http://localhost:3000', {transports: ['websocket', 'polling', 'flashsocket']})
     this.socket.on('connect', function() {
       console.log('connected');
-      
     })
     this.socket.on('disconnect', function() {
       console.log('disconnect');
@@ -34,12 +33,39 @@ export class SocketioService {
       }
     )
   }
+
+  joinRoom(idUserSend:string , idUserRecieve){
+    //console.log(room);
+    
+    this.socket.emit('join-room',idUserSend,idUserRecieve);
+  }
+  
+  SendMessage(idUserSend:string,idUserRecieve:string ,message : string){
+    //this.socket.connect()
+    console.log("messss -client send"+message);
+   
+   // this.socket.emit('message',message);
+   
+     
+    this.socket.emit("Client-Send-Message",idUserSend, message ,idUserRecieve );  
+  
+  
+  }
+  getIdSocket():string{
+    return this.socket.id;
+  }
+
+  listenFriendReq(msg: string): Observable<any> {
+    return fromEventPattern(
+      (handler) => {
+        this.socket.on(msg, handler);
+      }
+    )
+  }
  
   setupSocketConnection() {
 
     this.socket.on("Server-Send-Message",function(mss){
-      console.log('connected');
-
       const element = document.createElement('li');
       element.innerHTML = mss;
       element.style.background = 'white';

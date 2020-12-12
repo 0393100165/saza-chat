@@ -38,12 +38,6 @@
             <i class="ri-contacts-line"></i>
           </a>
         </li>
-        <li class="nav-item" ngbTooltip="Nhóm">
-          <a class="nav-link" id="pills-groups-tab" (click)="activetab=3" href="javascript: void(0);"
-            [ngClass]="{'active': activetab === 3}">
-            <i class="ri-group-line"></i>
-          </a>
-        </li>
         <li class="nav-item" ngbTooltip="Cài đặt">
           <a class="nav-link" id="pills-setting-tab" (click)="activetab=5" href="javascript: void(0);"
             [ngClass]="{'active': activetab === 5}">
@@ -114,12 +108,6 @@
       </div>
       <!-- End chats tab-pane -->
 
-      <!-- Start groups tab-pane -->
-      <div id="pills-groups" role="tabpanel" aria-labelledby="pills-groups-tab" *ngIf="activetab === 3">
-        <app-groups></app-groups>
-      </div>
-      <!-- End groups tab-pane -->
-
       <!-- Start contacts tab-pane -->
       <div id="pills-contacts" role="tabpanel" aria-labelledby="pills-contacts-tab" *ngIf="activetab === 4">
         <app-contacts></app-contacts>
@@ -157,8 +145,8 @@
 
   <!-- Start User chat -->
   <div class="user-chat w-100" id="chat-room" *ngIf='!isAdmin'>
-    <div class="d-lg-flex">
-
+    <!-- Chat -->
+    <div class="d-lg-flex" *ngIf="activetab != 4">
       <!-- start chat conversation section -->
       <div class="w-100">
         <div class="p-3 p-lg-4 border-bottom">
@@ -231,7 +219,7 @@
 
         <!-- start chat conversation -->
         <perfect-scrollbar class="chat-conversation p-3 p-lg-4">
-          <ul class="list-unstyled mb-0">
+          <ul class="list-unstyled mb-0" id="message-list">
             <li *ngFor="let data of Messages" [ngClass]="{'right': data.align === 'right'}">
               <div class="conversation-list" *ngIf="!data.isToday">
                 <div class="chat-avatar">
@@ -382,7 +370,7 @@
         <!-- end chat conversation end -->
 
         <!-- start chat input section -->
-        <div class="p-3 p-lg-4 border-top mb-0">
+        <div class="px-3 p-lg-3 border-top mb-0">
           <div class="row no-gutters">
             <div class="col">
               <div>
@@ -424,6 +412,39 @@
       <!-- end chat conversation section -->
 
       <app-profile-detail></app-profile-detail>
+    </div>
+
+    <!-- Friend request -->
+    <div class="d-lg-flex"  *ngIf="activetab === 4">
+      <div class="w-100">
+        <h1 class="p-4">Danh Sách kết bạn</h1>
+        <div class="dropdown-divider"></div>
+        <perfect-scrollbar class="chat-conversation p-3 p-lg-4">
+          <tr *ngFor="let friend of friendRequest">
+            <td class="w-100">
+              <div class="media ctext-wrap-content add-friend-request m-4">
+                <div class="chat-user-img align-self-center mr-3">
+                  <img src="{{friend.url_avatar}}" class="rounded-circle avatar-md" alt="">
+                </div>
+
+                <div class="media-body overflow-hidden"> 
+                  <h5 class="text-truncate font-size-24 mb-1">{{friend.fullname}}</h5>
+                  <p class="chat-user-message text-truncate mb-0">{{friend.msg}}</p>
+                </div>
+                <button type="button" (click)="refuse(friend.id)"
+                  class="btn-light font-size-16 btn-lg float-right p-2 m-2">
+                  Từ chối
+                </button>
+
+                <button type="button" (click)="addFriend(friend.id)"
+                  class="btn-primary font-size-16 btn-lg chat-send waves-effect waves-light float-right p-2 m-2">
+                  Chấp nhận
+                </button>
+              </div>
+            </td>
+          </tr>
+        </perfect-scrollbar>
+      </div>
     </div>
   </div>
 

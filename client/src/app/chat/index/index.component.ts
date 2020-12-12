@@ -16,7 +16,7 @@ import { AuthfakeauthenticationService } from '../../core/services/authfake.serv
 
 import { Validators, FormBuilder, FormGroup } from '@angular/forms';
 
-import {SocketioService} from '../index/socketio.service';
+import { SocketioService } from '../index/socketio.service';
 
 export interface UserData {
   id: number
@@ -31,7 +31,14 @@ export interface UserData {
   address: string
   birthday: string
   status_message: string
-  url_avatar:string
+  url_avatar: string
+}
+
+export interface friendReq {
+  id?: number
+  fullname?: string
+  msg?: string
+  url_avatar?: string
 }
 
 @Component({
@@ -44,31 +51,32 @@ export interface UserData {
  * Chat-component
  */
 export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
-  
+
   displayedColumns: string[] = ['id', 'username', 'fullname', 'nickname', 'isAdministrator', 'status',
-   'sex', 'email', 'phone', 'address', 'birthday', 'status_message', 'url_avatar', 'star'];
+    'sex', 'email', 'phone', 'address', 'birthday', 'status_message', 'url_avatar', 'star'];
   dataSource: MatTableDataSource<UserData>;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
- 
+
   activetab = 2;
   Messages: Message[];
   url_avatar = '';
+  user = null
   isAdmin: boolean = false;
   showprofile: boolean = false;
-
+  friendRequest: any = []
   userForm: FormGroup;
   submitted = false;
-  
+
   error = ''
-  
+
 
   destroy$: Subject<boolean> = new Subject<boolean>();
 
   constructor(private authFackservice: AuthfakeauthenticationService, private authService: AuthenticationService,
     private router: Router, public translate: TranslateService, private formBuilder: FormBuilder,
-    private modalService: NgbModal, private socketService : SocketioService) { 
+    private modalService: NgbModal, private socketService: SocketioService) {
     this.authFackservice.getAll().pipe(takeUntil(this.destroy$)).subscribe(
       data => {
         // Assign the data to the data source for the table to render
@@ -101,8 +109,9 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.Messages = Messages;
     this.url_avatar = user.url_avatar;
+    this.user = user
     this.isAdmin = user.isAdministrator === 1 ? true : false
-    if(this.isAdmin){
+    if (this.isAdmin) {
       this.activetab = 1
     }
 
@@ -115,8 +124,34 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
       admin: [false],
     });
 
-    this.socketService.listenMessage('XXX').pipe(takeUntil(this.destroy$)).subscribe((data) => {
-      console.log(data);
+    this.socketService.joinRoom('0333338662', '0798369251');
+    // this.socketService.setupSocketConnection();
+    this.socketService.listenMessage('Server-Send-Message').pipe(takeUntil(this.destroy$)).subscribe((data) => {
+      var socketID = data[1];
+      console.log('id-client', this.socketService.getIdSocket(), 'idsv', socketID);
+
+      if (socketID != this.socketService.getIdSocket()) {
+        if (data[0]) {
+          const element = document.createElement('li');
+          element.innerHTML = data[0];
+          element.style.background = 'white';
+          element.style.padding = '15px 30px';
+          element.style.margin = '10px';
+          element.style.textAlign = 'left';
+          document.getElementById('message-list').appendChild(element);
+        }
+      }
+    })
+
+    this.authFackservice.getReceiveFriendRequest(user.username).pipe(takeUntil(this.destroy$)).subscribe((data) => {
+      this.friendRequest = data
+    })
+
+    this.socketService.listenFriendReq(user.username + 'friendRequest').pipe(takeUntil(this.destroy$)).subscribe((data) => {
+      if (data)
+        this.authFackservice.getReceiveFriendRequest(user.username).pipe(takeUntil(this.destroy$)).subscribe((data) => {
+          this.friendRequest = data
+        })
     })
   }
 
@@ -150,59 +185,71 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
     this.router.navigate(['/account/login']);
   }
 
-  sendMessage(value: string){
+  sendMessage(value: string) {
     console.log(value);
+    
+    if (value) {
+      const element = document.createElement('li');
+      element.innerHTML = value;
+      element.style.background = 'white';
+      element.style.padding = '15px 30px';
+      element.style.margin = '10px';
+      element.style.textAlign = 'right';
+      document.getElementById('message-list').appendChild(element);
 
+      //Gui _ Nhan
+      this.socketService.SendMessage('0333338662', '0798369251', value);
+    }
   }
 
-  lockUser(id){
+  lockUser(id) {
     this.authFackservice.lockUser(id).pipe(takeUntil(this.destroy$)).subscribe(
       data => {
-       if(data){
-        this.authFackservice.getAll().pipe(takeUntil(this.destroy$)).subscribe(
-          data => {
-            // Assign the data to the data source for the table to render
-            this.dataSource = new MatTableDataSource(data['user']);
-    
-            this.dataSource.paginator = this.paginator;
-            this.dataSource.sort = this.sort;
-          },
-          error => {
-            console.error(error);
-          });
-       }
+        if (data) {
+          this.authFackservice.getAll().pipe(takeUntil(this.destroy$)).subscribe(
+            data => {
+              // Assign the data to the data source for the table to render
+              this.dataSource = new MatTableDataSource(data['user']);
+
+              this.dataSource.paginator = this.paginator;
+              this.dataSource.sort = this.sort;
+            },
+            error => {
+              console.error(error);
+            });
+        }
       },
       error => {
         console.error(error);
       });
   }
 
-  unlockUser(id){
+  unlockUser(id) {
     this.authFackservice.unlockUser(id).pipe(takeUntil(this.destroy$)).subscribe(
       data => {
-       if(data){
-        this.authFackservice.getAll().pipe(takeUntil(this.destroy$)).subscribe(
-          data => {
-            // Assign the data to the data source for the table to render
-            this.dataSource = new MatTableDataSource(data['user']);
-    
-            this.dataSource.paginator = this.paginator;
-            this.dataSource.sort = this.sort;
-          },
-          error => {
-            console.error(error);
-          });
-       }
+        if (data) {
+          this.authFackservice.getAll().pipe(takeUntil(this.destroy$)).subscribe(
+            data => {
+              // Assign the data to the data source for the table to render
+              this.dataSource = new MatTableDataSource(data['user']);
+
+              this.dataSource.paginator = this.paginator;
+              this.dataSource.sort = this.sort;
+            },
+            error => {
+              console.error(error);
+            });
+        }
       },
       error => {
         console.error(error);
       });
   }
 
-  addUser(){
+  addUser() {
     this.submitted = true;
     console.log(this.f.username.value);
-    
+
     if (this.userForm.invalid)
       return;
 
@@ -213,20 +260,20 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
     var email = ' '
     var phone = ' '
 
-    if(!this.f.admin.value) {
+    if (!this.f.admin.value) {
       /***********Kiểm tra username có hợp lệ */
-      if(!isNaN(username)){
+      if (!isNaN(username)) {
         const re = /[0-9]{9,11}$/ //Kiểm tra sô đt
-        if(re.test(String(username))){
+        if (re.test(String(username))) {
           //Username là số dt
           phone = username
         }
         else return this.error = 'Tên người dùng không hợp lệ'
-      }else{
+      } else {
         //Check Email
         const re = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
         username = username.toLowerCase()
-        if(re.test(String(username)))
+        if (re.test(String(username)))
           //username là Email
           email = username
         else return this.error = 'Tên người dùng không hợp lệ'
@@ -235,28 +282,38 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
     //Username đã có
     this.authFackservice.findUserbyUsername(username)
       .pipe(takeUntil(this.destroy$)).subscribe(data => {
-        if(data != null)
+        if (data != null)
           return this.error = 'Tên người dùng đã tồn tại'
       })
 
     //Người dùng nhập năm lớn hơn năm hiện tại
-    if(((new Date().getTime() -  new Date(birthday).getTime())/31556952000) < 0)
+    if (((new Date().getTime() - new Date(birthday).getTime()) / 31556952000) < 0)
       return this.error = 'Ngày sinh phải bé hơn ngày hiện tại'
-    
+
     this.authFackservice.register(username, password,
       this.f.admin.value ? 1 : 0, fullname, email, phone, birthday)
-    .pipe(takeUntil(this.destroy$)).subscribe(data => {
-      if (Object.values(data)[0] != null) {
-        this.router.navigate(['/']);
-      } else {
-        this.error = Object.values(data)[1];
-      }
-    },
-    error => {
-      this.error = error ? error : '';
-    });
+      .pipe(takeUntil(this.destroy$)).subscribe(data => {
+        if (Object.values(data)[0] != null) {
+          this.router.navigate(['/']);
+        } else {
+          this.error = Object.values(data)[1];
+        }
+      },
+        error => {
+          this.error = error ? error : '';
+        });
   }
-  
+
+  addFriend(id) {
+    console.log(id);
+
+  }
+
+  refuse(id) {
+    console.log(id);
+
+  }
+
   ngOnDestroy() {
     this.destroy$.next(true);
     this.destroy$.unsubscribe();

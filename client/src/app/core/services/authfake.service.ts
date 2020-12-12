@@ -70,14 +70,14 @@ export class AuthfakeauthenticationService {
         }));
     }
 
-    sendFriendRequest(id: string, usernameReceived: string) {
-        return this.http.post('/api/sendfriendrequest', {id, usernameReceived}).pipe(map(data => {
+    getSendFriendRequest(id) {
+        return this.http.post('/api/getSendfriendrequest', {id}).pipe(map(data => {
             return data;
         }));
     }
 
-    getSendFriendRequest(id: string) {
-        return this.http.post('/api/getSendfriendrequest', {id}).pipe(map(data => {
+    getUserbyID(id){
+        return this.http.post('/api/getUserbyID', {id}).pipe(map(data => {
             return data;
         }));
     }
@@ -102,6 +102,12 @@ export class AuthfakeauthenticationService {
 
     unlockUser(id) {
         return this.http.post('/api/unlockuser', {id}).pipe(map(data => {
+            return data;
+        }));
+    }
+
+    getReceiveFriendRequest(username){
+        return this.http.post('/api/getReceiveFriendRequest', {username}).pipe(map(data => {
             return data;
         }));
     }
