@@ -149,9 +149,8 @@ let saveUser = function (res, username, password, isAdmin, fullname, email, phon
           token: null,
           error: 'Đăng kí không thành công'
         })
-      } else {
-        login(res, username, password);
       }
+      return true
     }
   });
 }
@@ -345,6 +344,73 @@ function getReceiveFriendRequest(res, username) {
 app.post('/api/getReceiveFriendRequest', (req, res) => {
   getReceiveFriendRequest(res, req.body.username)
 });
+/********************refuseFriendRequest*/
+function removeSendFr(id, username){
+    var params = {
+      TableName: tableUser,
+      FilterExpression: 'id = :u',
+      ExpressionAttributeValues: {
+        ':u': id
+      },
+    };
+    docClient.scan(params, function (err, data) {
+      if (data.Items.length === 0) {
+        return res.json(false)
+      }
+      var index = 0
+      data.Items[0].sendFr.forEach(e => {
+        if(e === username){
+          var paramRemove = {
+            TableName: tableUser,
+            Key: {
+              'id': Number(id)
+            },
+            UpdateExpression: 'REMOVE sendFr[' + index + ']'
+          };
+          docClient.update(paramRemove, function (err, data) {});
+        }
+        index++
+      });
+    })
+}
+function removeReceiveFr(id, username){
+  var params = {
+    TableName: tableUser,
+    FilterExpression: 'username = :u',
+    ExpressionAttributeValues: {
+      ':u': username
+    },
+  };
+  docClient.scan(params, function (err, data) {
+    if (err) {
+      console.log(JSON.stringify(err, null, 2));
+    } else {
+      if (data.Items.length === 0) {
+        return res.json(false)
+      } else {
+        index = 0
+        data.Items[0].receiveFr.forEach(e => {
+          if(e === id){
+            var paramRemove = {
+              TableName: tableUser,
+              Key: {
+                'id': data.Items[0].id
+              },
+              UpdateExpression: 'REMOVE receiveFr[' + index + '], receiveFr[' + (index+1) + '], receiveFr[' + (index+2) + '], receiveFr[' + (index+3) + ']'
+            };
+            console.log(paramRemove);
+            docClient.update(paramRemove, function (err, data) {});
+            index++
+          }
+        })
+      }
+    }
+  });
+}
+app.post('/api/refuseFriendRequest', (req, res) => {
+  removeSendFr(req.body.id, req.body.username)
+  removeReceiveFr(req.body.id, req.body.username)
+});
 /***************************LockUser */
 function updateStatus(res, id, staus) {
   var params = {
@@ -379,7 +445,6 @@ io.on('connection', function (socket) {
   //Mess
   socket.on('join-room', async (idIUserSend, idIUserRecieve) => {
     let findRoom = function (idIUserSend, idIUserRecieve) {
-      console.log('*************');
       var params = {
         TableName: tableMessage,
       };
@@ -387,49 +452,31 @@ io.on('connection', function (socket) {
         if (err) {
           console.log(JSON.stringify(err, null, 2));
         } else {
-          //console.log(data);
           if (data.Items.length === 0) {
             console.log('null data');
           } else {
-            console.log('data' + data.Items);
-            //let arrayIdUser = data.Items[0].listUser;
             data.Items.forEach(function (itemData) {
               let count = 0;
               let temp;
               itemData.listUser.forEach(async function (itemid) {
-
                 if (count % 2 === 0) {
                   temp = itemid;
                 } else {
                   if (temp === idIUserSend || temp === idIUserRecieve) {
                     if (itemid === idIUserSend || itemid === idIUserRecieve) {
-                      // res.json({
-                      //   data : itemData.idRoom
-                      // })
-
                       var idroom = itemData.idRoom;
-                      // console.log('idroom213'+idroom);
-
-
                       await socket.join(idroom);
-                      //console.log('idroom'+idroom);
-
-                      // setTimeout(joinRoom(),300); 
                     }
                   }
                 }
-
                 count++;
               })
             })
-
           }
         }
       });
     }
     findRoom(idIUserSend, idIUserRecieve);
-    //await socket.join(room);
-    // console.log(socket.rooms);
     console.log(socket.id + ' connected', socket.rooms);
   })
   socket.on("Client-Send-Message", async function (idUserSend, message, idUserRecieve) {
@@ -559,7 +606,7 @@ let saveChat = function (idIUserSend, msg, idIUserRecieve) {
 }
 /***************************getChat */
 function getChat (idIUserSend, idIUserRecieve, socket) {
-  //console.log('*************');
+  console.log('get chat');
   var params = {
     TableName: tableMessage,
   };
@@ -567,26 +614,19 @@ function getChat (idIUserSend, idIUserRecieve, socket) {
     if (err) {
       console.log(JSON.stringify(err, null, 2));
     } else {
-      //console.log(data);
       if (data.Items.length === 0) {
         console.log('null data');
       } else {
         console.log('data' + data.Items);
-        //let arrayIdUser = data.Items[0].listUser;
         data.Items.forEach(function (itemData) {
           let count = 0;
           let temp;
           itemData.listUser.forEach(function (itemid) {
-
             if (count % 2 === 0) {
               temp = itemid;
             } else {
               if (temp === idIUserSend || temp === idIUserRecieve) {
                 if (itemid === idIUserSend || itemid === idIUserRecieve) {
-                  // res.json({
-                  //   data : itemData.idRoom
-                  // })
-                  console.log('id' + itemData.idRoom);
                   var params = {
                     TableName: tableMessage,
                     FilterExpression: "idRoom = :u",
@@ -602,10 +642,8 @@ function getChat (idIUserSend, idIUserRecieve, socket) {
                       if (data.Items.length === 0) {
                         console.log("null");
                       } else {
-                        console.log('-------');
-                        data.Items.forEach(function (itemdata) {
-                          socket.emit('getMsg', itemData.listMess);
-                        })
+                        socket.emit('getInfoChat', itemData.info);
+                        socket.emit('getMsg', itemData.listMess);
                       }
                     }
                   });
@@ -615,7 +653,6 @@ function getChat (idIUserSend, idIUserRecieve, socket) {
             count++;
           })
         })
-
       }
     }
   });

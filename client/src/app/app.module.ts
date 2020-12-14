@@ -25,6 +25,7 @@ import { AngularFireDatabaseModule } from '@angular/fire/database';
 import { AngularFireFunctionsModule } from '@angular/fire/functions';
 
 import { MDBBootstrapModule } from 'angular-bootstrap-md';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 if (environment.defaultauth === 'firebase') {
   initFirebaseBackend(environment.firebaseConfig);
@@ -54,6 +55,7 @@ export function createTranslateLoader(http: HttpClient): any {
     AngularFireMessagingModule,
     AngularFireDatabaseModule,
     AngularFireFunctionsModule,
+    MatSlideToggleModule,
     MDBBootstrapModule.forRoot(),
     TranslateModule.forRoot({
       loader: {

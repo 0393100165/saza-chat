@@ -119,6 +119,7 @@ export class OTPComponent implements OnInit, OnDestroy {
       this.authFackservice.register(username, password, 0, fullname, email, phone, birthday)
         .pipe(takeUntil(this.destroy$)).subscribe(data => {
           if (Object.values(data)[0] != null) {
+            this.authFackservice.login(username, password)
             this.router.navigate(['/']);
           } else {
             this.error = Object.values(data)[1];

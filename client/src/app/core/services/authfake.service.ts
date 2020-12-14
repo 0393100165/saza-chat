@@ -64,6 +64,12 @@ export class AuthfakeauthenticationService {
         }));
     }
 
+    saveUser(username:string, password:string, isAdmin: number, fullname:string, email:string, phone:string, birthday:string) {
+        return this.http.post('/api/register', {username, password, isAdmin, fullname, email, phone, birthday}).pipe(map(data => {         
+            return data
+        }));
+    }
+
     findUserbyUsername(username:string) {
         return this.http.post('/api/findbyusername', {username}).pipe(map(data => {
             return data;
@@ -72,6 +78,12 @@ export class AuthfakeauthenticationService {
 
     getSendFriendRequest(id) {
         return this.http.post('/api/getSendfriendrequest', {id}).pipe(map(data => {
+            return data;
+        }));
+    }
+
+    refuseFriendRequest(id, username) {
+        return this.http.post('/api/refuseFriendRequest', {id, username}).pipe(map(data => {
             return data;
         }));
     }

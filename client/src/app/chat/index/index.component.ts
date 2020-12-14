@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, HostListener, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
@@ -34,6 +34,12 @@ export interface UserData {
   url_avatar: string
 }
 
+export interface UserRecived {
+  id?: number
+  fullname?: string
+  url_avatar?: string
+}
+
 @Component({
   selector: 'app-index',
   templateUrl: './index.component.html',
@@ -51,18 +57,21 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
+  @ViewChild('scrollingContainer') private myScrollContainer: ElementRef;
 
   activetab = 2;
   Messages: Message[];
   url_avatar = '';
-  user = null
-  userRecived = null
+  user
+  userRecived: UserRecived = {}
   isAdmin: boolean = false;
   showprofile: boolean = false;
   friendRequest: any = []
   userForm: FormGroup;
   submitted = false;
-
+  checkAdmin = false;
+  
+  success = ''
   error = ''
 
 
@@ -87,6 +96,7 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+    this.scrollToBottom();
   }
 
   applyFilter(event: Event) {
@@ -106,7 +116,7 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
     this.user = user
     this.isAdmin = user.isAdministrator === 1 ? true : false
     if (this.isAdmin) {
-      this.activetab = 1
+      this.activetab = 3
     }
 
     //from them khach hang
@@ -115,25 +125,56 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
       password: ['', Validators.required],
       fullname: ['', Validators.required],
       birthday: ['', Validators.required],
-      admin: [false],
     });
-
-    function delay(ms: number) {
-      return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
-    //Ngọc - Black
-    var idRecived
-    if (user.id === 875036) {
-      idRecived = 231745
-    } else {
-      idRecived = 875036
-    }
-    this.authFackservice.getUserbyID(idRecived).pipe(takeUntil(this.destroy$)).subscribe((data) => {
-      this.userRecived = data['user'][0]
-    })
+  
     this.socketService.joinRoom(875036, 231745);
-    // this.socketService.setupSocketConnection();
+    this.socketService.getInfoChat().pipe(takeUntil(this.destroy$)).subscribe((data) => {
+      var info = data      
+      //Ngọc - Black
+      var idRecived
+      if (user.id === 875036) {
+        idRecived = 231745
+      } else {
+        idRecived = 875036
+      }
+      var i = info.indexOf(idRecived)
+      this.userRecived = {id: idRecived, fullname: info[i+1], url_avatar: info[i+2]}
+
+      this.socketService.getChat().pipe(takeUntil(this.destroy$)).subscribe((data) => {
+        var count = 0
+        var name
+        var message
+        var align
+        var profile
+        var time
+        data.forEach(async e => {          
+          switch (count % 3) {
+            case 0:
+              if (e === this.user.id) {
+                name = this.user.fullname
+                profile = this.user.url_avatar
+                align = 'right'
+              } else {
+                name = this.userRecived.fullname
+                profile = this.userRecived.url_avatar
+                align = 'left'
+              }
+              break
+            case 1:
+              message = e
+              break
+            case 2:
+              time = e
+              this.Messages.push({ name, message, align, profile, time})                
+              break
+          }
+          count++
+        });
+      
+        this.scrollToBottom();
+      })
+    })
+
     this.socketService.listenMessage('Server-Send-Message').pipe(takeUntil(this.destroy$)).subscribe((data) => {
       var socketID = data[1];
       console.log('id-client', this.socketService.getIdSocket(), 'idsv', socketID);
@@ -158,39 +199,6 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
         this.authFackservice.getReceiveFriendRequest(user.username).pipe(takeUntil(this.destroy$)).subscribe((data) => {
           this.friendRequest = data
         })
-    })
-
-    this.socketService.getChat().pipe(takeUntil(this.destroy$)).subscribe(async (data) => {
-      await delay(1000)
-      var count = 0
-      var name
-      var message
-      var align
-      var profile
-      var time
-      data.forEach(async e => {
-        switch (count % 3) {
-          case 0:
-            if (e === this.user.id) {
-              name = this.user.fullname
-              profile = this.user.url_avatar
-              align = 'right'
-            } else {
-              name = this.userRecived.fullname
-              profile = this.userRecived.url_avatar
-              align = 'left'
-            }
-            break
-          case 1:
-            message = e
-            break
-          case 2:
-            time = e
-            this.Messages.push({ name, message, align, profile, time})
-            break
-        }
-        count++
-      });
     })
   }
 
@@ -234,7 +242,15 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
       })
       //Gui _ Nhan
       this.socketService.SendMessage(this.user.id, this.userRecived.id, value);
+      this.scrollToBottom();
     }
+  }
+
+  scrollToBottom(): void {
+    try {
+        this.myScrollContainer.nativeElement.scrollTop = this.myScrollContainer.nativeElement.scrollHeight;
+    } catch(err) {console.log(err);
+    }                 
   }
 
   addZero(i) {
@@ -243,6 +259,7 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     return i;
   }
+
   getTime(date) {
     var d = date
     var h = this.addZero(d.getHours());
@@ -296,8 +313,6 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
 
   addUser() {
     this.submitted = true;
-    console.log(this.f.username.value);
-
     if (this.userForm.invalid)
       return;
 
@@ -308,7 +323,7 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
     var email = ' '
     var phone = ' '
 
-    if (!this.f.admin.value) {
+    if (!this.checkAdmin) {
       /***********Kiểm tra username có hợp lệ */
       if (!isNaN(username)) {
         const re = /[0-9]{9,11}$/ //Kiểm tra sô đt
@@ -330,7 +345,7 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
     //Username đã có
     this.authFackservice.findUserbyUsername(username)
       .pipe(takeUntil(this.destroy$)).subscribe(data => {
-        if (data != null)
+        if (data['user'] != null)
           return this.error = 'Tên người dùng đã tồn tại'
       })
 
@@ -338,28 +353,51 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
     if (((new Date().getTime() - new Date(birthday).getTime()) / 31556952000) < 0)
       return this.error = 'Ngày sinh phải bé hơn ngày hiện tại'
 
-    this.authFackservice.register(username, password,
-      this.f.admin.value ? 1 : 0, fullname, email, phone, birthday)
-      .pipe(takeUntil(this.destroy$)).subscribe(data => {
-        if (Object.values(data)[0] != null) {
-          this.router.navigate(['/']);
-        } else {
-          this.error = Object.values(data)[1];
-        }
-      },
-        error => {
-          this.error = error ? error : '';
-        });
+    this.authFackservice.saveUser(username, password,
+      this.checkAdmin ? 1 : 0, fullname, email, phone, birthday)
+      .pipe(takeUntil(this.destroy$)).subscribe(data => { },
+      error => {
+        this.error = error ? error : '';
+      });
+    this.success = 'Thêm tài khoản thành công'
+    this.userForm.reset()
+    this.checkAdmin = false
+    this.authFackservice.getAll().pipe(takeUntil(this.destroy$)).subscribe(
+      data => {
+        // Assign the data to the data source for the table to render
+        this.dataSource = new MatTableDataSource(data['user']);
+
+        this.dataSource.paginator = this.paginator;
+        this.dataSource.sort = this.sort;
+    },
+    error => {
+      console.error(error);
+    });
+  }
+
+  checkBoxAdmin(){
+    this.checkAdmin = !this.checkAdmin
   }
 
   addFriend(id) {
-    console.log(id);
-
+    this.removeFriendRequest(id)
   }
 
   refuse(id) {
-    console.log(id);
+    this.authFackservice.refuseFriendRequest(id, this.user.username).pipe(takeUntil(this.destroy$)).subscribe(data =>{
 
+    })
+    this.removeFriendRequest(id)
+  }
+
+  removeFriendRequest(id) {
+    for (var i = 0; i < this.friendRequest.length; i++) {
+      var obj = this.friendRequest[i];
+  
+      if (obj.id === id) {
+        this.friendRequest.splice(i, 1);
+      }
+    }
   }
 
   ngOnDestroy() {

@@ -42,6 +42,14 @@ export class SocketioService {
     )
   }
 
+  getInfoChat(): Observable<any> {    
+    return fromEventPattern(
+      (handler) => {
+        this.socket.on('getInfoChat', handler);
+      }
+    )
+  }
+
   joinRoom(idUserSend, idUserRecieve){
     //console.log(room);
     

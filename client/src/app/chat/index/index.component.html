@@ -50,8 +50,7 @@
     <div class="flex-lg-column my-auto" *ngIf='isAdmin'>
       <ul class="nav nav-pills side-menu-nav justify-content-center" role="tablist">
         <li class="nav-item" ngbTooltip="Thông tin">
-          <a class="nav-link" id="pills-user-tab" (click)="activetab=1 && showprofile = !showprofile" href="javascript: void(0);"
-            [ngClass]="{'active': activetab === 1}">
+          <a class="nav-link" id="pills-user-tab" (click)="showprofile = !showprofile" href="javascript: void(0);">
             <i class="ri-user-2-line"></i>
           </a>
         </li>
@@ -124,21 +123,20 @@
     <!-- Admin -->
     <div class="tab-content" *ngIf='isAdmin'>
       <!-- Start Profile tab-pane -->
-      <div id="pills-user" role="tabpanel" aria-labelledby="pills-user-tab" *ngIf="activetab === 1 || showprofile">
+      <div id="pills-user" role="tabpanel" aria-labelledby="pills-user-tab" *ngIf="showprofile">
         <app-profile></app-profile>
       </div>
       <!-- End Profile tab-pane-->
 
+      <!-- Start contacts tab-pane -->
+      <div id="pills-contacts" role="tabpanel" aria-labelledby="pills-contacts-tab" *ngIf="activetab === 2">
+        <!-- Todo-Quản lý người dùng -->
+      </div>
       <!-- Start groups tab-pane -->
       <div id="pills-groups" role="tabpanel" aria-labelledby="pills-groups-tab" *ngIf="activetab === 3">
         <!-- Todo-Thêm người dùng -->
       </div>
       <!-- End groups tab-pane -->
-
-      <!-- Start contacts tab-pane -->
-      <div id="pills-contacts" role="tabpanel" aria-labelledby="pills-contacts-tab" *ngIf="activetab === 4">
-        <!-- Todo-Quản lý người dùng -->
-      </div>
       <!-- End contacts tab-pane -->
     </div>
   </div>
@@ -219,7 +217,7 @@
 
         <!-- start chat conversation -->
         <perfect-scrollbar class="chat-conversation p-3 p-lg-4">
-          <ul class="list-unstyled mb-0" id="message-list">
+          <ul class="list-unstyled mb-0" id="message-list" #scrollingContainer>
             <li *ngFor="let data of Messages" [ngClass]="{'right': data.align === 'right'}">
               <div class="conversation-list" *ngIf="!data.isToday">
                 <div class="chat-avatar">
@@ -376,7 +374,7 @@
               <div>
                 <input type="text" class="form-control bg-light border-light" autofocus
                   #box
-                  (keyup.enter)="sendMessage(box.value); box.value=''"
+                  (keyup.enter)="sendMessage(box.value); box.value='';"
                   placeholder="Enter Message...">
               </div>
             </div>
@@ -448,218 +446,222 @@
     </div>
   </div>
 
-
   <!-- Start Admin UserData -->
   <div class="m-2" id="admin-table" *ngIf='isAdmin'>
-    <div>
-      <button type="button" class="btn btn-link text-decoration-none text-muted font-size-18 py-0 float-right" data-toggle="modal"
-          data-target="#addContact-exampleModal" (click)="openContactsModal(content)">
-          <i class="ri-user-add-line"></i> Thêm
-      </button>
-      <input class="form-control col-xs-10" matInput (keyup)="applyFilter($event)" placeholder="someone@gmail.com" #input>
-    </div>
-    <!-- Table danh sach khach hang -->
-    <div class="example-container mat-elevation-z8 mt-4">
-      <table mat-table class="table-hover" [dataSource]="dataSource" matSort>
-        <!-- ID Column -->
-        <ng-container matColumnDef="id" sticky>
-          <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
-          <td mat-cell *matCellDef="let row"> {{row.id}} </td>
-        </ng-container>
-    
-        <!-- Progress Column -->
-        <ng-container matColumnDef="username">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header> User name </th>
-          <td mat-cell *matCellDef="let row"> {{row.username}} </td>
-        </ng-container>
-    
-        <!-- fullname Column -->
-        <ng-container matColumnDef="fullname">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header> Full name </th>
-          <td mat-cell *matCellDef="let row"> {{row.fullname}} </td>
-        </ng-container>
-    
-        <!-- nickname Column -->
-        <ng-container matColumnDef="nickname">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header> Nickname </th>
-          <td mat-cell *matCellDef="let row" [style.color]="row.nickname"> {{row.nickname}} </td>
-        </ng-container>
+    <div *ngIf='activetab === 3'>
+      <div>
+        <button type="button" class="btn btn-link text-decoration-none text-muted font-size-18 py-0 float-right" data-toggle="modal"
+            data-target="#addContact-exampleModal" (click)="activetab = 2">
+            <i class="ri-user-add-line"></i> Thêm
+        </button>
+        <input class="form-control col-xs-10" matInput (keyup)="applyFilter($event)" placeholder="someone@gmail.com" #input>
+      </div>
+      <!-- Table danh sach khach hang -->
+      <div class="example-container mat-elevation-z8 mt-4">
+        <table mat-table class="table-hover" [dataSource]="dataSource" matSort>
+          <!-- ID Column -->
+          <ng-container matColumnDef="id" sticky>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
+            <td mat-cell *matCellDef="let row"> {{row.id}} </td>
+          </ng-container>
+      
+          <!-- Progress Column -->
+          <ng-container matColumnDef="username">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> User name </th>
+            <td mat-cell *matCellDef="let row"> {{row.username}} </td>
+          </ng-container>
+      
+          <!-- fullname Column -->
+          <ng-container matColumnDef="fullname">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Full name </th>
+            <td mat-cell *matCellDef="let row"> {{row.fullname}} </td>
+          </ng-container>
+      
+          <!-- nickname Column -->
+          <ng-container matColumnDef="nickname">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Nickname </th>
+            <td mat-cell *matCellDef="let row" [style.color]="row.nickname"> {{row.nickname}} </td>
+          </ng-container>
 
-         <!-- isAdministrator Column -->
-         <ng-container matColumnDef="isAdministrator">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header> Admin </th>
-          <td mat-cell *matCellDef="let row" [style.color]="row.isAdministrator"> {{row.isAdministrator}} </td>
-        </ng-container>
+          <!-- isAdministrator Column -->
+          <ng-container matColumnDef="isAdministrator">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Admin </th>
+            <td mat-cell *matCellDef="let row" [style.color]="row.isAdministrator"> {{row.isAdministrator}} </td>
+          </ng-container>
 
-        <!-- status Column -->
-        <ng-container matColumnDef="status">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header> status </th>
-          <td mat-cell *matCellDef="let row" [style.color]="row.status"> {{row.status}} </td>
-        </ng-container>
+          <!-- status Column -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> status </th>
+            <td mat-cell *matCellDef="let row" [style.color]="row.status"> {{row.status}} </td>
+          </ng-container>
 
-        <!-- sex Column -->
-        <ng-container matColumnDef="sex">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header> Sex </th>
-          <td mat-cell *matCellDef="let row" [style.color]="row.sex"> {{row.sex}} </td>
-        </ng-container>
+          <!-- sex Column -->
+          <ng-container matColumnDef="sex">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Sex </th>
+            <td mat-cell *matCellDef="let row" [style.color]="row.sex"> {{row.sex}} </td>
+          </ng-container>
 
-        <!-- email Column -->
-        <ng-container matColumnDef="email">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header> Email </th>
-          <td mat-cell *matCellDef="let row" [style.color]="row.email"> {{row.email}} </td>
-        </ng-container>
+          <!-- email Column -->
+          <ng-container matColumnDef="email">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Email </th>
+            <td mat-cell *matCellDef="let row" [style.color]="row.email"> {{row.email}} </td>
+          </ng-container>
 
-        <!-- phone Column -->
-        <ng-container matColumnDef="phone">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header> Phone </th>
-          <td mat-cell *matCellDef="let row" [style.color]="row.phone"> {{row.phone}} </td>
-        </ng-container>
+          <!-- phone Column -->
+          <ng-container matColumnDef="phone">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Phone </th>
+            <td mat-cell *matCellDef="let row" [style.color]="row.phone"> {{row.phone}} </td>
+          </ng-container>
 
-        <!-- address Column -->
-         <ng-container matColumnDef="address">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header> Address </th>
-          <td mat-cell *matCellDef="let row" [style.color]="row.address"> {{row.address}} </td>
-        </ng-container>
+          <!-- address Column -->
+          <ng-container matColumnDef="address">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Address </th>
+            <td mat-cell *matCellDef="let row" [style.color]="row.address"> {{row.address}} </td>
+          </ng-container>
 
-        <!-- birthday Column -->
-         <ng-container matColumnDef="birthday">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header> Birthday </th>
-          <td mat-cell *matCellDef="let row" [style.color]="row.birthday"> {{row.birthday}} </td>
-        </ng-container>
+          <!-- birthday Column -->
+          <ng-container matColumnDef="birthday">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Birthday </th>
+            <td mat-cell *matCellDef="let row" [style.color]="row.birthday"> {{row.birthday}} </td>
+          </ng-container>
 
-         <!-- status_message Column -->
-         <ng-container matColumnDef="status_message">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header> Status message </th>
-          <td mat-cell *matCellDef="let row" [style.color]="row.status_message"> {{row.status_message}} </td>
-        </ng-container>
+          <!-- status_message Column -->
+          <ng-container matColumnDef="status_message">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Status message </th>
+            <td mat-cell *matCellDef="let row" [style.color]="row.status_message"> {{row.status_message}} </td>
+          </ng-container>
 
-         <!-- url_avatar Column -->
-         <ng-container matColumnDef="url_avatar">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header> Url avatar </th>
-          <td mat-cell *matCellDef="let row" [style.color]="row.url_avatar"> {{row.url_avatar}} </td>
-        </ng-container>
+          <!-- url_avatar Column -->
+          <ng-container matColumnDef="url_avatar">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Url avatar </th>
+            <td mat-cell *matCellDef="let row" [style.color]="row.url_avatar"> {{row.url_avatar}} </td>
+          </ng-container>
 
-        <!-- Star Column -->
-        <ng-container matColumnDef="star" stickyEnd>
-          <th mat-header-cell *matHeaderCellDef></th>
-          <td mat-cell *matCellDef="let row" class="text-center">&nbsp;&nbsp;&nbsp;
-            <button type="button" class="btn-sm btn-danger" *ngIf="row.isAdministrator != 1 && row.status != 'lock'"
-            (click)="lockUser(row.id)">Khóa</button>    
-            <button type="button" class="btn-sm btn-danger not-allowed" *ngIf="row.isAdministrator != 0" disabled>Khóa</button>
-            <button type="button" class="btn-sm btn-success" *ngIf="row.status === 'lock'"
-            (click)="unlockUser(row.id)">Mở khóa</button>&nbsp;
-          </td>
-        </ng-container>
-        
-        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-    
-        <!-- Row shown when there is no matching data. -->
-        <tr class="mat-row" *matNoDataRow>
-          <td class="mat-cell" colspan="4">No data</td>
-        </tr>
-      </table>
+          <!-- Star Column -->
+          <ng-container matColumnDef="star" stickyEnd>
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let row" class="text-center">&nbsp;&nbsp;&nbsp;
+              <button type="button" class="btn-sm btn-danger" *ngIf="row.isAdministrator != 1 && row.status != 'lock'"
+              (click)="lockUser(row.id)">Khóa</button>    
+              <button type="button" class="btn-sm btn-danger not-allowed" *ngIf="row.isAdministrator != 0" disabled>Khóa</button>
+              <button type="button" class="btn-sm btn-success" *ngIf="row.status === 'lock'"
+              (click)="unlockUser(row.id)">Mở khóa</button>&nbsp;
+            </td>
+          </ng-container>
+          
+          <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      
+          <!-- Row shown when there is no matching data. -->
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell" colspan="4">No data</td>
+          </tr>
+        </table>
+      </div>
     </div>
     <!-- Them khach hang -->
-    <ng-template #content let-modal>
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title font-size-16" id="addContact-exampleModalLabel">
-            Thêm người dùng</h5>
-          <button type="button" class="close" (click)="modal.dismiss('Cross click')">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        
-        <h2 type="text" class="text-danger text-center" *ngIf="error" [dismissible]="false">{{ error }}</h2>
-        
-        <form [formGroup]="userForm" (ngSubmit)="addUser()" #userForm="ngForm">
-          <div class="modal-body p-4">
-            <ngb-alert type="success" *ngIf="successmsg" [dismissible]="false">Đăng ký thành công
-            </ngb-alert>
-            <ngb-alert type="danger" *ngIf="error" [dismissible]="false">{{ error }}</ngb-alert>
-            <div class="form-group">
-              <label>Tên đăng nhập</label>
-              <div class="input-group mb-3 bg-soft-light input-group-lg rounded-lg">
-                <div class="input-group-prepend">
-                  <span class="input-group-text border-light text-muted">
-                    <i class="ri-user-2-line"></i>
-                  </span>
-                </div>
-                <input type="text" class="form-control bg-soft-light border-light"
-                  placeholder="Nhập email hoặc số điện thoại" formControlName="username"
-                  [ngClass]="{ 'is-invalid': submitted && f.username.errors }">
-                <div *ngIf="submitted && f.username.errors" class="invalid-feedback">
-                  <div *ngIf="f.username.errors.required">
-                    Tên đăng nhập không được trống</div>
+    <div class="d-lg-flex"  *ngIf="activetab === 2">
+      <div class="account-pages my-5 pt-sm-5">
+        <div class="container">
+          <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6 col-xl-5">
+              <div class="text-center mb-4">
+                <h1>Tạo tài khoản</h1>
+              </div>
+              <div class="card">
+                <div class="card-body p-4">
+                  <div class="p-3">
+                    <form [formGroup]="userForm" (ngSubmit)="addUser()">
+                      <h2 type="success" *ngIf="success" [dismissible]="false" class="text-success text-center"> {{success}}
+                      </h2>
+                      <h2 type="danger" *ngIf="error" [dismissible]="false" class="text-danger text-center">{{ error }}</h2>
+                      <div class="form-group">
+                        <label>Tên đăng nhập</label>
+                        <div class="input-group mb-3 bg-soft-light input-group-lg rounded-lg">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text border-light text-muted">
+                              <i class="ri-user-2-line"></i>
+                            </span>
+                          </div>
+                          <input type="text" class="form-control bg-soft-light border-light"
+                            placeholder="Nhập email hoặc số điện thoại" formControlName="username"
+                            [ngClass]="{ 'is-invalid': submitted && f.username.errors }">
+                          <div *ngIf="submitted && f.username.errors" class="invalid-feedback">
+                            <div *ngIf="f.username.errors.required">
+                              Tên đăng nhập không được trống</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="form-group mb-4">
+                        <label>Mật khẩu</label>
+                        <div class="input-group mb-3 bg-soft-light input-group-lg rounded-lg">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text border-light text-muted">
+                              <i class="ri-lock-2-line"></i>
+                            </span>
+                          </div>
+                          <input type="password" formControlName="password" class="form-control bg-soft-light border-light"
+                            [ngClass]="{ 'is-invalid': submitted && f.password.errors }"
+                            placeholder="Nhập mật khẩu của bạn">
+                          <div *ngIf="submitted && f.password.errors" class="invalid-feedback">
+                            <div *ngIf="f.password.errors.required">
+                              Mật khẩu không được trống</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <label>Họ & Tên</label>
+                        <div class="input-group mb-3 bg-soft-light input-group-lg rounded-lg">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text border-light text-muted">
+                              <i class="ri-pencil-line"></i>
+                            </span>
+                          </div>
+                          <input type="text" formControlName="fullname" class="form-control bg-soft-light border-light"
+                            placeholder="Họ tên của bạn"
+                            [ngClass]="{ 'is-invalid': submitted && f.fullname.errors }">
+                          <div *ngIf="submitted && f.fullname.errors" class="invalid-feedback">
+                            <div *ngIf="f.fullname.errors.required">Họ & Tên không được để trống</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <label>Ngày Sinh</label>
+                        <div class="input-group mb-3 bg-soft-light input-group-lg rounded-lg">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text border-light text-muted">
+                              <i class="ri-calendar-line"></i>
+                            </span>
+                          </div>
+                          <input type="date" formControlName="birthday" class="form-control bg-soft-light border-light"
+                            [ngClass]="{ 'is-invalid': submitted && f.birthday.errors }">
+                          <div *ngIf="submitted && f.birthday.errors" class="invalid-feedback">
+                            <div *ngIf="f.birthday.errors.required">Ngày sinh không được để trống</div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div class="form-group mb-3">
+                        <label>Admin</label>&nbsp;<input type="checkbox" (change)="  checkBoxAdmin()">
+                      </div>
+
+                      <div>
+                        <button class="btn btn-primary btn-block"
+                          type="submit">Lưu</button>
+                      </div>
+                    </form>
+                  </div>
                 </div>
               </div>
             </div>
-
-            <div class="form-group mb-4">
-              <label>Mật khẩu</label>
-              <div class="input-group mb-3 bg-soft-light input-group-lg rounded-lg">
-                <div class="input-group-prepend">
-                  <span class="input-group-text border-light text-muted">
-                    <i class="ri-lock-2-line"></i>
-                  </span>
-                </div>
-                <input type="password" formControlName="password" class="form-control bg-soft-light border-light"
-                  [ngClass]="{ 'is-invalid': submitted && f.password.errors }"
-                  placeholder="Nhập mật khẩu của bạn">
-                <div *ngIf="submitted && f.password.errors" class="invalid-feedback">
-                  <div *ngIf="f.password.errors.required">
-                    Mật khẩu không được trống</div>
-                </div>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label>Họ & Tên</label>
-              <div class="input-group mb-3 bg-soft-light input-group-lg rounded-lg">
-                <div class="input-group-prepend">
-                  <span class="input-group-text border-light text-muted">
-                    <i class="ri-pencil-line"></i>
-                  </span>
-                </div>
-                <input type="text" formControlName="fullname" class="form-control bg-soft-light border-light"
-                  placeholder="Họ tên của bạn"
-                  [ngClass]="{ 'is-invalid': submitted && f.fullname.errors }">
-                <div *ngIf="submitted && f.fullname.errors" class="invalid-feedback">
-                  <div *ngIf="f.fullname.errors.required">Họ & Tên không được để trống</div>
-                </div>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label>Ngày Sinh</label>
-              <div class="input-group mb-3 bg-soft-light input-group-lg rounded-lg">
-                <div class="input-group-prepend">
-                  <span class="input-group-text border-light text-muted">
-                    <i class="ri-calendar-line"></i>
-                  </span>
-                </div>
-                <input type="date" formControlName="birthday" class="form-control bg-soft-light border-light"
-                  [ngClass]="{ 'is-invalid': submitted && f.birthday.errors }">
-                <div *ngIf="submitted && f.birthday.errors" class="invalid-feedback">
-                  <div *ngIf="f.birthday.errors.required">Ngày sinh không được để trống</div>
-                </div>
-              </div>
-            </div>
-
-            <div class="custom-control custom-checkbox mb-4">
-              <input type="checkbox" class="custom-control-input" id="isAdministrator">
-              <label class="custom-control-label" for="isAdministrator">Admin</label>
-            </div>
-            <button type="submit"
-              class="btn btn-primary btn-block">Lưu</button>
           </div>
-        </form>
+        </div>
       </div>
-    </ng-template>
-  </div>
+    </div>
 </div>
-
 <!-- Custom -->
 <style>
   .example-container {
@@ -683,5 +685,9 @@
   button:disabled {
     cursor: not-allowed;
     pointer-events: all !important;
+  }
+  .account-pages {
+    height: 85vh;
+    width: 90vw;
   }
 </style>

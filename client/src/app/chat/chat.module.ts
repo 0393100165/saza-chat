@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 import { NgbTooltipModule, NgbDropdownModule, NgbAccordionModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { PerfectScrollbarModule } from 'ngx-perfect-scrollbar';
@@ -30,7 +30,7 @@ import { MDBBootstrapModule } from 'angular-bootstrap-md';
     TranslateModule,
     MDBBootstrapModule.forRoot(),
     MatTableModule,
-    FormsModule
+    ReactiveFormsModule
   ],
   exports: [ProfileDetailComponent]
 })
