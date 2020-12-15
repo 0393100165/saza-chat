@@ -82,6 +82,12 @@ export class AuthfakeauthenticationService {
         }));
     }
 
+    getFriendlist(id){
+        return this.http.post('/api/getFriendlist', {id}).pipe(map(data => {
+            return data;
+        }));
+    }
+
     refuseFriendRequest(id, username) {
         return this.http.post('/api/refuseFriendRequest', {id, username}).pipe(map(data => {
             return data;

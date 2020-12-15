@@ -57,7 +57,7 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
-  @ViewChild('scrollingContainer') private myScrollContainer: ElementRef;
+  @ViewChild('scrollMe') private myScrollContainer: ElementRef;
 
   activetab = 2;
   Messages: Message[];
@@ -71,6 +71,9 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
   submitted = false;
   checkAdmin = false;
   
+  notificationFr:number = 0
+  notificationChat:number = 0
+
   success = ''
   error = ''
 
@@ -141,7 +144,7 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
       this.userRecived = {id: idRecived, fullname: info[i+1], url_avatar: info[i+2]}
 
       this.socketService.getChat().pipe(takeUntil(this.destroy$)).subscribe((data) => {
-        var count = 0
+        var count = 0, i
         var name
         var message
         var align
@@ -150,13 +153,14 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
         data.forEach(async e => {          
           switch (count % 3) {
             case 0:
+              i = info.indexOf(e)
               if (e === this.user.id) {
                 name = this.user.fullname
                 profile = this.user.url_avatar
                 align = 'right'
               } else {
-                name = this.userRecived.fullname
-                profile = this.userRecived.url_avatar
+                name = info[i+1]
+                profile = info[i+2]
                 align = 'left'
               }
               break
@@ -170,15 +174,12 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
           }
           count++
         });
-      
         this.scrollToBottom();
       })
     })
 
     this.socketService.listenMessage('Server-Send-Message').pipe(takeUntil(this.destroy$)).subscribe((data) => {
       var socketID = data[1];
-      console.log('id-client', this.socketService.getIdSocket(), 'idsv', socketID);
-
       if (socketID != this.socketService.getIdSocket()) {
         if (data[0]) {
           var time = this.getTime(new Date())
@@ -192,12 +193,14 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.authFackservice.getReceiveFriendRequest(user.username).pipe(takeUntil(this.destroy$)).subscribe((data) => {
       this.friendRequest = data
+      this.notificationFr = this.friendRequest.length
     })
 
-    this.socketService.listenFriendReq(user.username + 'friendRequest').pipe(takeUntil(this.destroy$)).subscribe((data) => {
-      if (data)
+    this.socketService.listenFriendReq().pipe(takeUntil(this.destroy$)).subscribe((data) => {
+      if (data === this.user.username)
         this.authFackservice.getReceiveFriendRequest(user.username).pipe(takeUntil(this.destroy$)).subscribe((data) => {
           this.friendRequest = data
+          this.notificationFr = this.friendRequest.length
         })
     })
   }
@@ -233,7 +236,6 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   sendMessage(value: string) {
-    console.log(value);
     if (value) {
       var time = this.getTime(new Date())
       this.Messages.push({
@@ -248,9 +250,8 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
 
   scrollToBottom(): void {
     try {
-        this.myScrollContainer.nativeElement.scrollTop = this.myScrollContainer.nativeElement.scrollHeight;
-    } catch(err) {console.log(err);
-    }                 
+      this.myScrollContainer.nativeElement.scrollTop = this.myScrollContainer.nativeElement.scrollHeight;
+    } catch(err) {console.log(err);}                 
   }
 
   addZero(i) {
@@ -380,13 +381,12 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   addFriend(id) {
+    this.socketService.acceptFriend(id, this.user.username)
     this.removeFriendRequest(id)
   }
 
   refuse(id) {
-    this.authFackservice.refuseFriendRequest(id, this.user.username).pipe(takeUntil(this.destroy$)).subscribe(data =>{
-
-    })
+    this.authFackservice.refuseFriendRequest(id, this.user.username).pipe(takeUntil(this.destroy$)).subscribe(data =>{})
     this.removeFriendRequest(id)
   }
 
@@ -398,6 +398,7 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
         this.friendRequest.splice(i, 1);
       }
     }
+    this.notificationFr--
   }
 
   ngOnDestroy() {

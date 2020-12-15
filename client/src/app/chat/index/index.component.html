@@ -4,13 +4,13 @@
     <div class="navbar-brand-box">
       <a routerLink="/" class="logo logo-dark">
         <span class="logo-sm">
-          <img src="assets/images/logo.svg" alt="" height="30">
+          <img src="assets/images/logo.svg" alt="" height="60">
         </span>
       </a>
 
       <a routerLink="/" class="logo logo-light">
         <span class="logo-sm">
-          <img src="assets/images/logo.svg" alt="" height="30">
+          <img src="assets/images/logo.svg" alt="" height="60">
         </span>
       </a>
     </div>
@@ -27,19 +27,19 @@
           </a>
         </li>
         <li class="nav-item" ngbTooltip="Chát">
-          <a class="nav-link active" id="pills-chat-tab" (click)="activetab=2" href="javascript: void(0);"
+          <a class="nav-link active notification" id="pills-chat-tab" (click)="activetab=2" href="javascript: void(0);"
             [ngClass]="{'active': activetab === 2}">
-            <i class="ri-message-3-line"></i>
+            <i class="ri-message-3-line"><span class="badge" *ngIf="notificationChat > 0">{{notificationChat}}</span></i>
           </a>
         </li>
         <li class="nav-item" ngbTooltip="Liên lạc" placement="top">
-          <a class="nav-link" id="pills-contacts-tab" (click)="activetab=4" href="javascript: void(0);"
+          <a class="nav-link notification" id="pills-contacts-tab" (click)="activetab=4;" href="javascript: void(0);"
             [ngClass]="{'active': activetab === 4}">
-            <i class="ri-contacts-line"></i>
+            <i class="ri-contacts-line"><span class="badge" *ngIf="notificationFr > 0">{{notificationFr}}</span></i>
           </a>
         </li>
         <li class="nav-item" ngbTooltip="Cài đặt">
-          <a class="nav-link" id="pills-setting-tab" (click)="activetab=5" href="javascript: void(0);"
+          <a class="nav-link notification" id="pills-setting-tab" (click)="activetab=5" href="javascript: void(0);"
             [ngClass]="{'active': activetab === 5}">
             <i class="ri-settings-2-line"></i>
           </a>
@@ -217,7 +217,7 @@
 
         <!-- start chat conversation -->
         <perfect-scrollbar class="chat-conversation p-3 p-lg-4">
-          <ul class="list-unstyled mb-0" id="message-list" #scrollingContainer>
+          <ul class="list-unstyled mb-0" id="message-list" #scrollMe>
             <li *ngFor="let data of Messages" [ngClass]="{'right': data.align === 'right'}">
               <div class="conversation-list" *ngIf="!data.isToday">
                 <div class="chat-avatar">
@@ -375,7 +375,7 @@
                 <input type="text" class="form-control bg-light border-light" autofocus
                   #box
                   (keyup.enter)="sendMessage(box.value); box.value='';"
-                  placeholder="Enter Message...">
+                  placeholder="Nhập tin nhắn...">
               </div>
             </div>
             <div class="col-auto">
@@ -413,7 +413,7 @@
     </div>
 
     <!-- Friend request -->
-    <div class="d-lg-flex"  *ngIf="activetab === 4">
+    <div class="d-lg-flex" id="friend-request"  *ngIf="activetab === 4">
       <div class="w-100">
         <h1 class="p-4">Danh Sách kết bạn</h1>
         <div class="dropdown-divider"></div>
@@ -673,21 +673,47 @@
     flex-direction: column;
     overflow: auto;
   }
+
   table {
     width: 2000px;
   }
+
   .mat-table-sticky:first-child {
     border-right: 1px solid #e0e0e0;
   }
+
   .mat-table-sticky:last-child {
     border-left: 1px solid #e0e0e0;
   }
+
   button:disabled {
     cursor: not-allowed;
     pointer-events: all !important;
   }
+
   .account-pages {
     height: 85vh;
     width: 90vw;
+  }
+
+  .notification {
+    text-decoration: none;
+    padding: 12px 20px;
+    position: relative;
+    display: inline-block;
+  }
+
+  .notification:hover {
+    background: #e6ebf5;
+  }
+
+  .notification .badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    padding: 5px 10px;
+    border-radius: 50%;
+    background-color: #7269ef;
+    color: white;
   }
 </style>

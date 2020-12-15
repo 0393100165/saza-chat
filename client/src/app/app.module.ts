@@ -27,6 +27,7 @@ import { AngularFireFunctionsModule } from '@angular/fire/functions';
 import { MDBBootstrapModule } from 'angular-bootstrap-md';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
+
 if (environment.defaultauth === 'firebase') {
   initFirebaseBackend(environment.firebaseConfig);
 } else {

@@ -136,14 +136,13 @@ let saveUser = function (res, username, password, isAdmin, fullname, email, phon
     'url_avatar': 'assets/images/users/default.png', //avatar mặc định
   };
   var params = {
-    TableName: 'User',
+    TableName: tableUser,
     Item: input
   };
   docClient.put(params, function (err, data) {
     if (err) {
       console.log('User::save::error - ' + JSON.stringify(err, null, 2));
     } else {
-      console.log('User::save::success');
       if (data === null) {
         return res.json({
           token: null,
@@ -178,7 +177,6 @@ function getAllEmailPhone(res) {
       });
       // continue scanning if we have more items
       if (typeof data.LastEvaluatedKey != 'undefined') {
-        console.log('Scanning for more...');
         params.ExclusiveStartKey = data.LastEvaluatedKey;
         docClient.scan(params, onScan);
       }
@@ -214,7 +212,7 @@ app.post('/api/getUserbyID', (req, res) => {
   docClient.scan(getUserbyID(res, req.body.id));
 })
 /*************************Friend request */
-function sendfriendrequest(id, usernameReceived, msg) {
+function sendfriendrequest(socket, id, usernameReceived, msg) {
   /******Tim` username */
   var userReceived, userSend
   var params = {
@@ -273,7 +271,13 @@ function sendfriendrequest(id, usernameReceived, msg) {
       },
       ReturnValues: 'UPDATED_NEW'
     };
-    docClient.update(paramSend, function (err, data) { });
+    docClient.update(paramSend, async function (err, data) {
+      //Gui thong bao cho nguoi nhan
+      if(err) console.log(err);
+      setTimeout(()=>{
+        socket.emit('friendRequest', usernameReceived)
+      }, 600);
+    });
   });
 }
 /************** getSendfriendrequest*/
@@ -398,7 +402,6 @@ function removeReceiveFr(id, username){
               },
               UpdateExpression: 'REMOVE receiveFr[' + index + '], receiveFr[' + (index+1) + '], receiveFr[' + (index+2) + '], receiveFr[' + (index+3) + ']'
             };
-            console.log(paramRemove);
             docClient.update(paramRemove, function (err, data) {});
             index++
           }
@@ -410,6 +413,122 @@ function removeReceiveFr(id, username){
 app.post('/api/refuseFriendRequest', (req, res) => {
   removeSendFr(req.body.id, req.body.username)
   removeReceiveFr(req.body.id, req.body.username)
+});
+/***********************acceptFriendReq */
+function acceptFriendReq(socket, id, username){
+  var params = {
+    TableName: tableUser,
+    FilterExpression: 'username = :u',
+    ExpressionAttributeValues: {
+      ':u': username
+    },
+  };
+  docClient.scan(params, function (err, data) {
+    if (err) {
+      console.log(JSON.stringify(err, null, 2));
+    } else {
+      if (data.Items.length === 0) {
+        return res.json(false)
+      } else {
+        var userA = data.Items[0]
+        var paramsB = {
+          TableName: tableUser,
+          FilterExpression: 'id = :u',
+          ExpressionAttributeValues: {
+            ':u': id
+          },
+        };
+        docClient.scan(paramsB, function (err, data) {
+          if(err) console.log(err);
+          var userB = data.Items[0]
+          var paramUserA = {
+            TableName: tableUser,
+            Key: {
+              'id': userA.id
+            },
+            UpdateExpression: 'SET #s = list_append(if_not_exists(#s, :empty_list), :r)',
+            ExpressionAttributeNames: {
+              '#s': 'friendlist'
+            },
+            ExpressionAttributeValues: {
+              ':r': [userB.id, userB.username],
+              ':empty_list': []
+            },
+            ReturnValues: 'UPDATED_NEW'
+          };
+          docClient.update(paramUserA, function (err, data) {
+            if(err) console.log(err);
+            socket.emit('newfriend', userA.id)
+          });
+          var paramUserB = {
+            TableName: tableUser,
+            Key: {
+              'id': userB.id
+            },
+            UpdateExpression: 'SET #s = list_append(if_not_exists(#s, :empty_list), :r)',
+            ExpressionAttributeNames: {
+              '#s': 'friendlist'
+            },
+            ExpressionAttributeValues: {
+              ':r': [userA.id, userA.username],
+              ':empty_list': []
+            },
+            ReturnValues: 'UPDATED_NEW'
+          };
+          docClient.update(paramUserB, function (err, data) { 
+            if(err) console.log(err);
+            socket.emit('newfriend', id)
+          });
+          removeSendFr(userB.id, userA.username)
+          removeReceiveFr(userB.id, userA.username)
+          createRoom(userA, userB)
+        })
+      }
+    }
+  })
+}
+function createRoom(userA, userB){
+  var max = 9999999999;
+  var min = 1000000000;
+  var id = Math.floor(Math.random() * (max - min)) + min;
+  var input = {
+    'idRoom': id,
+    'listUser': [userA.id, userB.id],
+    'info': [userA.id, userA.fullname, userA.url_avatar, userB.id, userB.fullname, userB.url_avatar]
+  };
+  var params = {
+    TableName: tableMessage,
+    Item: input
+  };
+  docClient.put(params, function (err, data) {
+    if (err) {
+      console.log('Room::save::error - ' + JSON.stringify(err, null, 2));
+    }
+  });
+}
+/***********************getFriendlist */
+function getFriendlist(res, id) {
+  var params = {
+    TableName: tableUser,
+    FilterExpression: 'id = :u',
+    ExpressionAttributeValues: {
+      ':u': id
+    },
+  };
+  docClient.scan(params, function (err, data) {
+    if (err) {
+      console.log(JSON.stringify(err, null, 2));
+    } else {
+      if (data.Items.length === 0) {
+        return res.json(null)
+      } else {
+        return res.json(data.Items[0].friendlist)
+      }
+    }
+  })
+}
+app.post('/api/getFriendlist', (req, res) => {
+  getFriendlist(res, req.body.id)
 });
 /***************************LockUser */
 function updateStatus(res, id, staus) {
@@ -453,7 +572,6 @@ io.on('connection', function (socket) {
           console.log(JSON.stringify(err, null, 2));
         } else {
           if (data.Items.length === 0) {
-            console.log('null data');
           } else {
             data.Items.forEach(function (itemData) {
               let count = 0;
@@ -477,13 +595,10 @@ io.on('connection', function (socket) {
       });
     }
     findRoom(idIUserSend, idIUserRecieve);
-    console.log(socket.id + ' connected', socket.rooms);
   })
-  socket.on("Client-Send-Message", async function (idUserSend, message, idUserRecieve) {
+  socket.on('Client-Send-Message', async function (idUserSend, message, idUserRecieve) {
     await saveChat(idUserSend, message, idUserRecieve);
-    console.log('sv', message);
     let findRoom = function (idIUserSend, idIUserRecieve) {
-      console.log('*************');
       var params = {
         TableName: tableMessage,
       };
@@ -491,11 +606,9 @@ io.on('connection', function (socket) {
         if (err) {
           console.log(JSON.stringify(err, null, 2));
         } else {
-          //console.log(data);
           if (data.Items.length === 0) {
             console.log('null data');
           } else {
-            console.log('data' + data.Items);
             //let arrayIdUser = data.Items[0].listUser;
             data.Items.forEach(function (itemData) {
               let count = 0;
@@ -507,18 +620,8 @@ io.on('connection', function (socket) {
                 } else {
                   if (temp === idIUserSend || temp === idIUserRecieve) {
                     if (itemid === idIUserSend || itemid === idIUserRecieve) {
-                      // res.json({
-                      //   data : itemData.idRoom
-                      // })
-
                       var idroom = itemData.idRoom;
-                      // console.log('idroom213'+idroom);
-
-
                       await io.to(idroom).emit('Server-Send-Message', message, socket.id);
-                      //console.log('idroom'+idroom);
-
-                      // setTimeout(joinRoom(),300); 
                     }
                   }
                 }
@@ -535,9 +638,11 @@ io.on('connection', function (socket) {
   getChat(875036, 231745, socket)
   //Friend request
   socket.on('sendFriend', ({ id, usernameReceived, msg }) => {
-    sendfriendrequest(id, usernameReceived, msg)
-    //Gui thong bao cho nguoi nhan
-    socket.emit(usernameReceived + 'friendRequest', true)
+    sendfriendrequest(socket, id, usernameReceived, msg)
+  })
+
+  socket.on('acceptFriend', ({id, username}) =>{
+    acceptFriendReq(socket, id, username)
   })
 });
 /***************************saveChat */
@@ -552,7 +657,6 @@ let saveChat = function (idIUserSend, msg, idIUserRecieve) {
       if (data.Items.length === 0) {
         console.log('null data');
       } else {
-        console.log('data' + data.Items);
         //let arrayIdUser = data.Items[0].listUser;
         data.Items.forEach(function (itemData) {
           let count = 0;
@@ -585,7 +689,6 @@ let saveChat = function (idIUserSend, msg, idIUserRecieve) {
                     },
                     ReturnValues: 'UPDATED_NEW'
                   };
-                  console.log(paramReceived);
                   docClient.update(paramReceived, function (err, data) {
                     if (err) {
                       console.log("mess::save::error - " + JSON.stringify(err, null, 2));
@@ -606,7 +709,6 @@ let saveChat = function (idIUserSend, msg, idIUserRecieve) {
 }
 /***************************getChat */
 function getChat (idIUserSend, idIUserRecieve, socket) {
-  console.log('get chat');
   var params = {
     TableName: tableMessage,
   };
@@ -617,7 +719,6 @@ function getChat (idIUserSend, idIUserRecieve, socket) {
       if (data.Items.length === 0) {
         console.log('null data');
       } else {
-        console.log('data' + data.Items);
         data.Items.forEach(function (itemData) {
           let count = 0;
           let temp;
@@ -638,7 +739,6 @@ function getChat (idIUserSend, idIUserRecieve, socket) {
                     if (err) {
                       console.log(JSON.stringify(err, null, 2));
                     } else {
-                      // console.log(data);
                       if (data.Items.length === 0) {
                         console.log("null");
                       } else {

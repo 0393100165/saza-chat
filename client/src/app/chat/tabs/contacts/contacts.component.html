@@ -51,7 +51,7 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-link"
-              (click)="modal.dismiss('Cross click')">Thoát</button>
+              (click)="close()">Thoát</button>
             <button type="submit"
               class="btn btn-primary">Gửi lời mời</button>
           </div>
@@ -95,11 +95,11 @@
                 <i class="ri-more-2-fill"></i>
               </a>
               <div class="dropdown-menu dropdown-menu-right" ngbDropdownMenu>
-                <a class="dropdown-item" href="#!">Chia sẻ <i
-                    class="ri-share-line float-right text-muted"></i></a>
-                <a class="dropdown-item" href="#!">Chặn <i
+                <a class="dropdown-item" (click)="mess(item.id)">Nhắn tin<i
+                    class="ri-message-2-line float-right text-muted"></i></a>
+                <a class="dropdown-item" (click)="block(item.id)">Chặn <i
                     class="ri-forbid-line float-right text-muted"></i></a>
-                <a class="dropdown-item" href="#!">Xóa bạn <i
+                <a class="dropdown-item" (click)="unfriend(item.id)">Xóa bạn <i
                     class="ri-delete-bin-line float-right text-muted"></i></a>
               </div>
             </div>

@@ -29,7 +29,6 @@
     "@ngx-translate/http-loader": "^6.0.0",
     "@types/chart.js": "^2.9.28",
     "angular-bootstrap-md": "^10.1.1",
-    "angular-notification-icons": "^1.0.0",
     "animate.css": "^4.1.1",
     "bootstrap": "^4.5.0",
     "chart.js": "^2.5.0",

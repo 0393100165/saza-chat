@@ -1,5 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { OwlOptions } from 'ngx-owl-carousel-o';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+
+import { groups } from '../groups/data';
+import { Groups } from '../groups/groups.model';
 
 import { chat } from './data';
 import { Chats } from './chats.model';
@@ -16,8 +21,9 @@ import { TranslateService } from '@ngx-translate/core';
 export class ChatsComponent implements OnInit {
 
   chat: Chats[];
+  groupForm: FormGroup;
 
-  constructor(public translate: TranslateService) { }
+  constructor(public translate: TranslateService, private modalService: NgbModal, private formBuilder: FormBuilder) { }
 
   customOptions: OwlOptions = {
     loop: true,
@@ -29,9 +35,22 @@ export class ChatsComponent implements OnInit {
     nav: false
   };
 
+  public isCollapsed: boolean;
+  groups: Groups[];
+
   ngOnInit(): void {
+    this.groups = groups;
+    this.groupForm = this.formBuilder.group({
+      
+    })
+    // collpsed value
+    this.isCollapsed = true;
 
     this.chat = chat;
+  }
+
+  openGroupModal(content: any) {
+    this.modalService.open(content, { centered: true });
   }
 
   /**
