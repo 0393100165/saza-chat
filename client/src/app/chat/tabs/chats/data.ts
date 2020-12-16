@@ -94,6 +94,7 @@ const chat = [
         id: 1,
         name: 'Black',
         status: 'online',
+        profilePicture: 'assets/images/users/default',
         isTyping: true,
         time: '04:56 PM'
     },

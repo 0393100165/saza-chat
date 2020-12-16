@@ -24,6 +24,8 @@ var AWS = require('aws-sdk');
 AWS.config.update({
   region: 'ap-southeast-1',
   endpoint: 'http://dynamodb.ap-southeast-1.amazonaws.com',
+  accessKeyId: 'AKIA5WDQBAFZRXQ5DI63',
+  secretAccessKey: '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'
 });
 var docClient = new AWS.DynamoDB.DocumentClient();
 var tableUser = 'User';
@@ -504,6 +506,38 @@ function createRoom(userA, userB){
     if (err) {
       console.log('Room::save::error - ' + JSON.stringify(err, null, 2));
     }
+    var paramReceived = {
+      TableName: tableUser,
+      Key: {
+        'id': userA.id
+      },
+      UpdateExpression: 'SET #s = list_append(if_not_exists(#s, :empty_list), :r)',
+      ExpressionAttributeNames: {
+        '#s': 'chats'
+      },
+      ExpressionAttributeValues: {
+        ':r': [id],
+        ':empty_list': []
+      },
+      ReturnValues: 'UPDATED_NEW'
+    };
+    docClient.update(paramReceived, function (err, data) { });
+    var paramReceived = {
+      TableName: tableUser,
+      Key: {
+        'id': userB.id
+      },
+      UpdateExpression: 'SET #s = list_append(if_not_exists(#s, :empty_list), :r)',
+      ExpressionAttributeNames: {
+        '#s': 'chats'
+      },
+      ExpressionAttributeValues: {
+        ':r': [id],
+        ':empty_list': []
+      },
+      ReturnValues: 'UPDATED_NEW'
+    };
+    docClient.update(paramReceived, function (err, data) { });
   });
 }
 /***********************getFriendlist */
@@ -529,6 +563,43 @@ function getFriendlist(res, id) {
 }
 app.post('/api/getFriendlist', (req, res) => {
   getFriendlist(res, req.body.id)
+});
+/************ getChatRoomInfo */
+function getChatRoomInfo(res, id){
+  var params = {
+    TableName: tableMessage,
+    FilterExpression: 'idRoom = :u',
+    ExpressionAttributeValues: {
+      ':u': id
+    },
+  };
+  docClient.scan(params, function (err, data) {
+    if(err) console.log(err);
+    if(typeof(data.Items[0].idRoom) != 'undefined')
+      res.json({
+        'idRoom': data.Items[0].idRoom,
+        'info': data.Items[0].info
+      })
+  })
+}
+app.post('/api/getChatRoomInfo', (req, res) => {
+  getChatRoomInfo(res, req.body.id)
+});
+/**************getUserChats */
+function getUserChats(res, id) {
+  var params = {
+    TableName: tableUser,
+    FilterExpression: 'id = :u',
+    ExpressionAttributeValues: {
+      ':u': id
+    },
+  };
+  docClient.scan(params, function (err, data) {
+    res.json(data.Items[0].chats)
+  })
+}
+app.post('/api/getUserChats', (req, res) => {
+  getUserChats(res, req.body.id)
 });
 /***************************LockUser */
 function updateStatus(res, id, staus) {
@@ -562,80 +633,13 @@ app.post('/api/unlockuser', (req, res) => {
 /***************************Chat */
 io.on('connection', function (socket) {
   //Mess
-  socket.on('join-room', async (idIUserSend, idIUserRecieve) => {
-    let findRoom = function (idIUserSend, idIUserRecieve) {
-      var params = {
-        TableName: tableMessage,
-      };
-      docClient.scan(params, function (err, data) {
-        if (err) {
-          console.log(JSON.stringify(err, null, 2));
-        } else {
-          if (data.Items.length === 0) {
-          } else {
-            data.Items.forEach(function (itemData) {
-              let count = 0;
-              let temp;
-              itemData.listUser.forEach(async function (itemid) {
-                if (count % 2 === 0) {
-                  temp = itemid;
-                } else {
-                  if (temp === idIUserSend || temp === idIUserRecieve) {
-                    if (itemid === idIUserSend || itemid === idIUserRecieve) {
-                      var idroom = itemData.idRoom;
-                      await socket.join(idroom);
-                    }
-                  }
-                }
-                count++;
-              })
-            })
-          }
-        }
-      });
-    }
-    findRoom(idIUserSend, idIUserRecieve);
+  socket.on('join-room', idRoom => {
+    socket.join(idRoom);
   })
-  socket.on('Client-Send-Message', async function (idUserSend, message, idUserRecieve) {
-    await saveChat(idUserSend, message, idUserRecieve);
-    let findRoom = function (idIUserSend, idIUserRecieve) {
-      var params = {
-        TableName: tableMessage,
-      };
-      docClient.scan(params, function (err, data) {
-        if (err) {
-          console.log(JSON.stringify(err, null, 2));
-        } else {
-          if (data.Items.length === 0) {
-            console.log('null data');
-          } else {
-            //let arrayIdUser = data.Items[0].listUser;
-            data.Items.forEach(function (itemData) {
-              let count = 0;
-              let temp;
-              itemData.listUser.forEach(async function (itemid) {
-
-                if (count % 2 === 0) {
-                  temp = itemid;
-                } else {
-                  if (temp === idIUserSend || temp === idIUserRecieve) {
-                    if (itemid === idIUserSend || itemid === idIUserRecieve) {
-                      var idroom = itemData.idRoom;
-                      await io.to(idroom).emit('Server-Send-Message', message, socket.id);
-                    }
-                  }
-                }
-                count++;
-              })
-            })
-          }
-        }
-      });
-    }
-    findRoom(idUserSend, idUserRecieve);
+  socket.on('Client-Send-Message', async (idRoom, idUserSend, message) => {
+    await saveChat(idRoom, idUserSend, message);
+    await io.to(idRoom).emit('Server-Send-Message', message, socket.id);
   });
-
-  getChat(875036, 231745, socket)
   //Friend request
   socket.on('sendFriend', ({ id, usernameReceived, msg }) => {
     sendfriendrequest(socket, id, usernameReceived, msg)
@@ -646,115 +650,57 @@ io.on('connection', function (socket) {
   })
 });
 /***************************saveChat */
-let saveChat = function (idIUserSend, msg, idIUserRecieve) {
-  var params = {
+let saveChat = function (idRoom, idUserSend, message) {
+  var today = new Date();
+  var date = today.getDate() + '-' + (today.getMonth() + 1) + '-' + today.getFullYear();
+  var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+  var dateTime = date + ' ' + time;
+  //save chat
+  var paramReceived = {
     TableName: tableMessage,
+    Key: {
+      'idRoom': idRoom
+    },
+    UpdateExpression: 'SET #s = list_append(if_not_exists(#s, :empty_list), :r)',
+    ExpressionAttributeNames: {
+      '#s': 'listMess'
+    },
+    ExpressionAttributeValues: {
+      ':r': [idUserSend, message, dateTime.toString()],
+      ':empty_list': []
+    },
+    ReturnValues: 'UPDATED_NEW'
   };
-  docClient.scan(params, function (err, data) {
+  docClient.update(paramReceived, function (err, data) {
     if (err) {
-      console.log(JSON.stringify(err, null, 2));
+      console.log("mess::save::error - " + JSON.stringify(err, null, 2));
     } else {
-      if (data.Items.length === 0) {
-        console.log('null data');
-      } else {
-        //let arrayIdUser = data.Items[0].listUser;
-        data.Items.forEach(function (itemData) {
-          let count = 0;
-          let temp;
-          itemData.listUser.forEach(function (itemid) {
-
-            if (count % 2 === 0) {
-              temp = itemid;
-            } else {
-              if (temp === idIUserSend || temp === idIUserRecieve) {
-                if (itemid === idIUserSend || itemid === idIUserRecieve) {
-                  var today = new Date();
-                  var date = today.getDate() + '-' + (today.getMonth() + 1) + '-' + today.getFullYear();
-                  var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-                  var dateTime = date + ' ' + time;
-                  var id = itemData.idRoom
-                  //save chat
-                  var paramReceived = {
-                    TableName: tableMessage,
-                    Key: {
-                      'idRoom': id
-                    },
-                    UpdateExpression: 'SET #s = list_append(if_not_exists(#s, :empty_list), :r)',
-                    ExpressionAttributeNames: {
-                      '#s': 'listMess'
-                    },
-                    ExpressionAttributeValues: {
-                      ':r': [idIUserSend, msg, dateTime.toString()],
-                      ':empty_list': []
-                    },
-                    ReturnValues: 'UPDATED_NEW'
-                  };
-                  docClient.update(paramReceived, function (err, data) {
-                    if (err) {
-                      console.log("mess::save::error - " + JSON.stringify(err, null, 2));
-                    } else {
-                      console.log("mess::save::success");
-                    }
-                  });
-                }
-              }
-            }
-            count++;
-          })
-        })
-
-      }
+      console.log("mess::save::success");
     }
   });
 }
 /***************************getChat */
-function getChat (idIUserSend, idIUserRecieve, socket) {
+function getChats (res, idRoom) {
   var params = {
     TableName: tableMessage,
+    FilterExpression: "idRoom = :u",
+    ExpressionAttributeValues: {
+      ":u": idRoom
+    },
   };
   docClient.scan(params, function (err, data) {
     if (err) {
       console.log(JSON.stringify(err, null, 2));
     } else {
       if (data.Items.length === 0) {
-        console.log('null data');
+        console.log("null");
       } else {
-        data.Items.forEach(function (itemData) {
-          let count = 0;
-          let temp;
-          itemData.listUser.forEach(function (itemid) {
-            if (count % 2 === 0) {
-              temp = itemid;
-            } else {
-              if (temp === idIUserSend || temp === idIUserRecieve) {
-                if (itemid === idIUserSend || itemid === idIUserRecieve) {
-                  var params = {
-                    TableName: tableMessage,
-                    FilterExpression: "idRoom = :u",
-                    ExpressionAttributeValues: {
-                      ":u": itemData.idRoom
-                    },
-                  };
-                  docClient.scan(params, function (err, data) {
-                    if (err) {
-                      console.log(JSON.stringify(err, null, 2));
-                    } else {
-                      if (data.Items.length === 0) {
-                        console.log("null");
-                      } else {
-                        socket.emit('getInfoChat', itemData.info);
-                        socket.emit('getMsg', itemData.listMess);
-                      }
-                    }
-                  });
-                }
-              }
-            }
-            count++;
-          })
-        })
+        res.json(data.Items[0]['listMess'])
       }
     }
   });
 }
+app.post('/api/getChats', (req, res) => {
+  getChats(res, req.body.id)
+});
 /***************************findroom */

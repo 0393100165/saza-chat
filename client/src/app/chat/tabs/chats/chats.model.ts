@@ -4,7 +4,7 @@ export interface Chats {
     profilePicture?: string;
     status?: string;
     lastMessage?: string;
-    time: string;
+    time?: string;
     unRead?: string;
     isActive?: boolean;
     isTyping?: boolean;

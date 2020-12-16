@@ -103,7 +103,7 @@
 
       <!-- Start chats tab-pane -->
       <div id="pills-chat" role="tabpanel" aria-labelledby="pills-chat-tab" *ngIf="activetab === 2">
-        <app-chats></app-chats>
+        <app-chats (messageEvent)="receiveMessage($event)"></app-chats>
       </div>
       <!-- End chats tab-pane -->
 
@@ -140,13 +140,12 @@
       <!-- End contacts tab-pane -->
     </div>
   </div>
-
   <!-- Start User chat -->
   <div class="user-chat w-100" id="chat-room" *ngIf='!isAdmin'>
     <!-- Chat -->
     <div class="d-lg-flex" *ngIf="activetab != 4">
       <!-- start chat conversation section -->
-      <div class="w-100">
+      <div class="w-100" *ngIf="userRecived">
         <div class="p-3 p-lg-4 border-bottom">
           <div class="row align-items-center">
             <div class="col-sm-4 col-8">
@@ -156,8 +155,13 @@
                     (click)="closeUserChat()"><i class="ri-arrow-left-s-line"></i></a>
                 </div>
                 <div class="mr-3">
-                  <img src="{{userRecived.url_avatar}}" class="rounded-circle avatar-xs" alt="">
+                  <img *ngIf="userRecived.url_avatar" src="{{userRecived.url_avatar}}" class="rounded-circle avatar-xs" alt="">
                 </div>
+                 <div class="avatar-xs" *ngIf="!userRecived.url_avatar">
+                   <span class="avatar-title rounded-circle bg-soft-primary text-primary">
+                     {{(userRecived.fullname).charAt(0)}}
+                   </span>
+                 </div>
                 <div class="media-body overflow-hidden">
                   <h5 class="font-size-16 mb-0 text-truncate"><a href="#"
                       class="text-reset user-profile-show">{{userRecived.fullname}}</a> <i

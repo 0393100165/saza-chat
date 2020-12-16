@@ -8,7 +8,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { AuthfakeauthenticationService } from '../../../core/services/authfake.service';
-import {SocketioService} from '../../index/socketio.service';
+import { SocketioService } from '../../index/socketio.service';
 
 @Component({
   selector: 'app-contacts',

@@ -2,7 +2,6 @@ import { AfterViewInit, Component, ElementRef, OnInit, ViewChild, OnDestroy } fr
 import { Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { Subject } from 'rxjs';
@@ -55,7 +54,6 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
     'sex', 'email', 'phone', 'address', 'birthday', 'status_message', 'url_avatar', 'star'];
   dataSource: MatTableDataSource<UserData>;
 
-  @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild('scrollMe') private myScrollContainer: ElementRef;
 
@@ -63,13 +61,14 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
   Messages: Message[];
   url_avatar = '';
   user
-  userRecived: UserRecived = {}
+  userRecived: UserRecived = null
   isAdmin: boolean = false;
   showprofile: boolean = false;
   friendRequest: any = []
   userForm: FormGroup;
   submitted = false;
   checkAdmin = false;
+  idRoom
   
   notificationFr:number = 0
   notificationChat:number = 0
@@ -87,8 +86,6 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
       data => {
         // Assign the data to the data source for the table to render
         this.dataSource = new MatTableDataSource(data['user']);
-
-        this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
       },
       error => {
@@ -97,18 +94,12 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
-    this.scrollToBottom();
+    
   }
 
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
-
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    }
   }
 
   ngOnInit(): void {
@@ -130,54 +121,6 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
       birthday: ['', Validators.required],
     });
   
-    this.socketService.joinRoom(875036, 231745);
-    this.socketService.getInfoChat().pipe(takeUntil(this.destroy$)).subscribe((data) => {
-      var info = data      
-      //Ngọc - Black
-      var idRecived
-      if (user.id === 875036) {
-        idRecived = 231745
-      } else {
-        idRecived = 875036
-      }
-      var i = info.indexOf(idRecived)
-      this.userRecived = {id: idRecived, fullname: info[i+1], url_avatar: info[i+2]}
-
-      this.socketService.getChat().pipe(takeUntil(this.destroy$)).subscribe((data) => {
-        var count = 0, i
-        var name
-        var message
-        var align
-        var profile
-        var time
-        data.forEach(async e => {          
-          switch (count % 3) {
-            case 0:
-              i = info.indexOf(e)
-              if (e === this.user.id) {
-                name = this.user.fullname
-                profile = this.user.url_avatar
-                align = 'right'
-              } else {
-                name = info[i+1]
-                profile = info[i+2]
-                align = 'left'
-              }
-              break
-            case 1:
-              message = e
-              break
-            case 2:
-              time = e
-              this.Messages.push({ name, message, align, profile, time})                
-              break
-          }
-          count++
-        });
-        this.scrollToBottom();
-      })
-    })
-
     this.socketService.listenMessage('Server-Send-Message').pipe(takeUntil(this.destroy$)).subscribe((data) => {
       var socketID = data[1];
       if (socketID != this.socketService.getIdSocket()) {
@@ -227,6 +170,46 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
     document.getElementById('chat-room').classList.remove('user-chat-show');
   }
 
+  receiveMessage($event) {
+    var info = $event
+    this.idRoom = info['idRoom']    
+    this.socketService.joinRoom(this.idRoom);
+    this.Messages = []
+    if(!info['group']){
+      this.userRecived = {id: info['id'], fullname: info['name'], url_avatar: info['profilePicture']}
+      this.authFackservice.getChats(this.idRoom).pipe(takeUntil(this.destroy$)).subscribe((data) => {
+        var name
+        var message
+        var align
+        var profile
+        var time
+        if(data)
+        for(var e in data) {          
+          switch (Number(e) % 3) {
+            case 0:
+              if (data[e] === this.user.id) {
+                name = this.user.fullname
+                profile = this.user.url_avatar
+                align = 'right'
+              } else {
+                name = info['name']
+                profile = info['profilePicture']
+                align = 'left'
+              }
+              break
+            case 1:
+              message = data[e]
+              break
+            case 2:
+              time = data[e]
+              this.Messages.push({ name, message, align, profile, time})                
+              break
+          }
+        }
+      })
+    }    
+  }
+
   /**
    * Logout the user
    */
@@ -243,8 +226,8 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
         profile: this.url_avatar, time: time
       })
       //Gui _ Nhan
-      this.socketService.SendMessage(this.user.id, this.userRecived.id, value);
-      this.scrollToBottom();
+      this.socketService.SendMessage(this.idRoom, this.user.id, value);
+      
     }
   }
 
@@ -276,8 +259,6 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
             data => {
               // Assign the data to the data source for the table to render
               this.dataSource = new MatTableDataSource(data['user']);
-
-              this.dataSource.paginator = this.paginator;
               this.dataSource.sort = this.sort;
             },
             error => {
@@ -298,8 +279,6 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
             data => {
               // Assign the data to the data source for the table to render
               this.dataSource = new MatTableDataSource(data['user']);
-
-              this.dataSource.paginator = this.paginator;
               this.dataSource.sort = this.sort;
             },
             error => {
@@ -367,8 +346,6 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
       data => {
         // Assign the data to the data source for the table to render
         this.dataSource = new MatTableDataSource(data['user']);
-
-        this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
     },
     error => {

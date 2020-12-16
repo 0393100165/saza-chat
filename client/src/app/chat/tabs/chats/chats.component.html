@@ -342,7 +342,7 @@
 
        <ul class="list-unstyled chat-list chat-user-list">
          <li *ngFor="let user of chat" [ngClass]="{'typing': user.isTyping, 'active': user.isActive}"
-           (click)="showChat()">
+           (click)="showChat(user)">
            <a href="#">
              <div class="media">
 

@@ -22,32 +22,19 @@ export class SocketioService {
     return fromEventPattern(
       (handler) => {
         this.socket.on(msg, handler)
+      },
+      (removeHandler) => {
+        this.socket.removeEventListener(msg, removeHandler)
       }
     )
   }
 
-  getChat(): Observable<any> {    
-    return fromEventPattern(
-      (handler) => {
-        this.socket.on('getMsg', handler)
-      }
-    )
-  }
-
-  getInfoChat(): Observable<any> {    
-    return fromEventPattern(
-      (handler) => {
-        this.socket.on('getInfoChat', handler)
-      }
-    )
-  }
-
-  joinRoom(idUserSend, idUserRecieve){
-    this.socket.emit('join-room',idUserSend,idUserRecieve)
+  joinRoom(idRoom){
+    this.socket.emit('join-room', idRoom)
   }
   
-  SendMessage(idUserSend, idUserRecieve ,message : string){
-    this.socket.emit("Client-Send-Message",idUserSend, message ,idUserRecieve )  
+  SendMessage(idRoom, idUserSend, message){
+    this.socket.emit("Client-Send-Message", idRoom, idUserSend, message)  
   }
 
   getIdSocket():string{
@@ -58,6 +45,9 @@ export class SocketioService {
     return fromEventPattern(
       (handler) => {        
         this.socket.on('friendRequest', handler)
+      },
+      (removeHandler) => {
+        this.socket.removeEventListener('friendRequest', removeHandler)
       }
     )
   }

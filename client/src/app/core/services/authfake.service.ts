@@ -129,4 +129,22 @@ export class AuthfakeauthenticationService {
             return data;
         }));
     }
+
+    getChatRoomInfo(id){
+        return this.http.post('/api/getChatRoomInfo', {id}).pipe(map(data => {
+            return data;
+        }));
+    }
+
+    getUserChats(id){
+        return this.http.post('/api/getUserChats', {id}).pipe(map(data => {
+            return data;
+        }));
+    }
+
+    getChats(id){
+        return this.http.post('/api/getChats', {id}).pipe(map(data => {
+            return data;
+        }));
+    }
 }
