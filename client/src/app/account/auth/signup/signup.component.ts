@@ -88,16 +88,18 @@ export class SignupComponent implements OnInit, OnDestroy {
       //Người dùng nhập năm lớn hơn năm hiện tại
       if(((new Date().getTime() -  new Date(birthday).getTime())/31556952000) < 0)
         return this.error = 'Ngày sinh phải bé hơn ngày hiện tại'
-
-      /**************OTP */
-      this.router.navigate(['/account/signup/otp', {
-        username, 
-        password, 
-        fullname,
-        birthday, 
-        email, 
-        phone
-      }]);
+      
+      setTimeout(()=>{
+        /**************OTP */
+        this.router.navigate(['/account/signup/otp', {
+          username, 
+          password, 
+          fullname,
+          birthday, 
+          email, 
+          phone
+        }]);
+      }, 200)
     }
   }
   

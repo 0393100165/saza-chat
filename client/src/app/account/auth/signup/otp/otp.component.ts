@@ -105,7 +105,6 @@ export class OTPComponent implements OnInit, OnDestroy {
       return this.error = 'Mã OTP phải đủ 6 ký tự số'
     
     this.verifyLoginCode()
-    console.log(this.verify);
     
     /********************** register ******************************/
     if(this.verify){
@@ -118,11 +117,11 @@ export class OTPComponent implements OnInit, OnDestroy {
 
       this.authFackservice.register(username, password, 0, fullname, email, phone, birthday)
         .pipe(takeUntil(this.destroy$)).subscribe(data => {
-          if (Object.values(data)[0] != null) {
+          if (data[0].length != 0) {           
             this.authFackservice.login(username, password)
             this.router.navigate(['/']);
           } else {
-            this.error = Object.values(data)[1];
+            this.error = Object.values(data)[0];
           }
         },
         error => {
@@ -145,7 +144,7 @@ export class OTPComponent implements OnInit, OnDestroy {
     this.windowRef.confirmationResult
       .confirm(this.otp)
       .then( result => {this.verify = true})
-    .catch( error => this.error = 'Mã xác thực OTP không đúng');
+    .catch( error => this.error = error);
   }
 
   reSendOTP(){

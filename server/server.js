@@ -145,11 +145,9 @@ let saveUser = function (res, username, password, isAdmin, fullname, email, phon
     } else {
       if (data === null) {
         return res.json({
-          token: null,
           error: 'Đăng kí không thành công'
         })
       }
-      return true
     }
   });
 }
