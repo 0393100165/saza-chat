@@ -5,11 +5,11 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { groups } from '../groups/data';
 import { Groups } from '../groups/groups.model';
+import { Contacts } from '../contacts/contacts.model';
 
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { Chats } from './chats.model';
 import { TranslateService } from '@ngx-translate/core';
 import { AuthfakeauthenticationService } from '../../../core/services/authfake.service';
 
@@ -25,6 +25,14 @@ export class ChatsComponent implements OnInit, OnDestroy {
   chat: any[] = [];
   groupForm: FormGroup;
 
+  contacts: Contacts[] = []
+  contactsList: any;
+
+  submitted = false
+  listGroups = []
+
+  error = ''
+  
   idRoom
 
   destroy$: Subject<boolean> = new Subject<boolean>();
@@ -51,7 +59,7 @@ export class ChatsComponent implements OnInit, OnDestroy {
     var user = JSON.parse(localStorage.getItem('currentUser'))[0]
     this.groups = groups;
     this.groupForm = this.formBuilder.group({
-
+      groupName: ['', Validators.required]
     })
     // collpsed value
     this.isCollapsed = true;
@@ -80,6 +88,12 @@ export class ChatsComponent implements OnInit, OnDestroy {
                     break
                   }
                 };
+              } else {
+                this.chat.push({
+                  'idRoom': idRoom, 'group': true, 'name': info[0],
+                  'status': 'online', 'member': info.slice(1, info.length), 
+                  'time': Math.floor(Math.random() * 59) + 'm', 'lastMessage': this.generateName(),
+                })
               }
             }
             count++
@@ -87,7 +101,40 @@ export class ChatsComponent implements OnInit, OnDestroy {
         })
       }
     });
+
+    //getFrrend list
+    this.authFackservice.getFriendlist(user.id).pipe(takeUntil(this.destroy$)).subscribe( data => {
+      var friendList:any = []
+      friendList = data
+      var count = 0, idfr
+      friendList.forEach(e => {          
+        if(count % 2 === 0){
+          idfr = e
+        } else {
+          var contact: Contacts = {id: idfr, name: e}
+          this.contacts.push(contact)
+        }
+        count++
+      });
+      const sorted = this.contacts.sort((a, b) => a.name > b.name ? 1 : -1);
+  
+      const grouped = sorted.reduce((groups, contact) => {
+        const letter = this.translate.instant(contact.name).charAt(0);
+        groups[letter] = groups[letter] || [];
+        groups[letter].push(contact);
+
+        return groups;
+      }, {});
+
+      // contacts list
+      this.contactsList = Object.keys(grouped).map(key => ({ key, contacts: grouped[key] }));
+    },
+    error => {
+      console.error(error);
+    });
   }
+
+  get f() { return this.groupForm.controls; }
 
   capFirst(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
@@ -118,6 +165,40 @@ export class ChatsComponent implements OnInit, OnDestroy {
   showChat(id) {
     document.getElementById('chat-room').classList.add('user-chat-show');
     this.messageEvent.emit(id)
+  }
+
+  createGroups(){
+    this.submitted = true;
+    // stop here if form is invalid
+    if (this.groupForm.invalid) {
+      this.error = 'Tên nhóm không được bỏ trống'
+      return;
+    } else {
+      if(this.listGroups.length < 2){
+        this.error = 'Nhóm phải trên hai người'
+        return;
+      }
+      this.listGroups.push(JSON.parse(localStorage.getItem('currentUser'))[0].id)
+      this.authFackservice.createGroup(this.f.groupName.value, this.listGroups).pipe(takeUntil(this.destroy$)).subscribe( data => {
+      
+      },
+      error => {
+        console.error(error);
+      });
+      this.submitted = false
+      this.groupForm.reset()
+      this.listGroups = []
+      this.modalService.dismissAll()
+    }
+  }
+
+  listUser(id){
+    const index = this.listGroups.indexOf(id);
+    if (index > -1) {
+      this.listGroups.splice(index, 1);
+    } else {
+      this.listGroups.push(id)
+    }
   }
 
   ngOnDestroy() {

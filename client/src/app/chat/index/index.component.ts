@@ -59,6 +59,7 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
 
   activetab = 2;
   Messages: Message[];
+  member = []
   url_avatar = '';
   user
   userRecived: UserRecived = null
@@ -122,13 +123,18 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   
     this.socketService.listenMessage('Server-Send-Message').pipe(takeUntil(this.destroy$)).subscribe((data) => {
-      var socketID = data[1];
+      console.log(data);
+      
+      var socketID = data[2];
       if (socketID != this.socketService.getIdSocket()) {
-        if (data[0]) {
+        if (data[1]) {
+          const index =  this.member.indexOf(data[0])
+          var name =  this.member[Number(index+1)]
+          var profile =  this.member[Number(index+2)]
           var time = this.getTime(new Date())
           this.Messages.push({
-            name: this.userRecived.fullname, message: data[0], align: 'left',
-            profile: this.userRecived.url_avatar, time: time
+            name: name, message: data[1], align: 'left',
+            profile: profile, time: time
           })
         }
       }
@@ -172,12 +178,22 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
 
   receiveMessage($event) {
     var info = $event
+    
     this.idRoom = info['idRoom']    
-    this.socketService.joinRoom(this.idRoom);
-    this.Messages = []
-    if(!info['group']){
-      this.userRecived = {id: info['id'], fullname: info['name'], url_avatar: info['profilePicture']}
-      this.authFackservice.getChats(this.idRoom).pipe(takeUntil(this.destroy$)).subscribe((data) => {
+    if(this.idRoom){
+      this.socketService.joinRoom(this.idRoom);
+      this.Messages = []
+      this.member = []
+      //get info
+      if(!info['group']){
+        this.userRecived = {id: info['id'], fullname: info['name'], url_avatar: info['profilePicture']}
+        this.member.push(info['id'], info['name'], info['profilePicture'])
+      } else {
+        this.userRecived = {fullname: info['name']}
+        this.member = info['member']
+      }
+      //Show chat
+      this.authFackservice.getChats(this.idRoom).pipe(takeUntil(this.destroy$)).subscribe((data) => {       
         var name
         var message
         var align
@@ -192,8 +208,9 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
                 profile = this.user.url_avatar
                 align = 'right'
               } else {
-                name = info['name']
-                profile = info['profilePicture']
+                const index =  this.member.indexOf(data[e])
+                name =  this.member[Number(index+1)]
+                profile =  this.member[Number(index+2)]
                 align = 'left'
               }
               break
@@ -207,7 +224,7 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
           }
         }
       })
-    }    
+    }
   }
 
   /**
@@ -340,6 +357,7 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
         this.error = error ? error : '';
       });
     this.success = 'Thêm tài khoản thành công'
+    this.submitted = false
     this.userForm.reset()
     this.checkAdmin = false
     this.authFackservice.getAll().pipe(takeUntil(this.destroy$)).subscribe(

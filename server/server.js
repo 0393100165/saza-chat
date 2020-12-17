@@ -538,6 +538,66 @@ function createRoom(userA, userB){
     docClient.update(paramReceived, function (err, data) { });
   });
 }
+/***********************createGroup */
+async function createGroup(nameGroup, listUser){
+  var max = 9999999999;
+  var min = 1000000000;
+  var id = Math.floor(Math.random() * (max - min)) + min;
+  var info = []
+
+  info.push(nameGroup)
+  listUser.forEach(e => {
+    var params = {
+      TableName: tableUser,
+      FilterExpression: 'id = :u',
+      ExpressionAttributeValues: {
+        ':u': e
+      },
+    };
+    docClient.scan(params, function (err, data) {
+      if (data.Items.length != 0) {
+        info.push(data.Items[0].id, data.Items[0].fullname, data.Items[0].url_avatar)
+      }
+    });
+  })
+  setTimeout(() => {
+    var input = {
+      'idRoom': id,
+      'listUser': listUser,
+      'info': info
+    };
+    var params = {
+      TableName: tableMessage,
+      Item: input
+    };
+    docClient.put(params, function (err, data) {
+      if (err) {
+        console.log('Room::save::error - ' + JSON.stringify(err, null, 2));
+      }
+      listUser.forEach(e => {
+        var paramReceived = {
+          TableName: tableUser,
+          Key: {
+            'id': e
+          },
+          UpdateExpression: 'SET #s = list_append(if_not_exists(#s, :empty_list), :r)',
+          ExpressionAttributeNames: {
+            '#s': 'chats'
+          },
+          ExpressionAttributeValues: {
+            ':r': [id],
+            ':empty_list': []
+          },
+          ReturnValues: 'UPDATED_NEW'
+        };
+        docClient.update(paramReceived, function (err, data) { });
+      })
+    });
+  }, 600);
+}
+app.post('/api/createGroup', (req, res) => {
+  createGroup(req.body.nameGroup, req.body.listUser)
+});
 /***********************getFriendlist */
 function getFriendlist(res, id) {
   var params = {
@@ -573,11 +633,12 @@ function getChatRoomInfo(res, id){
   };
   docClient.scan(params, function (err, data) {
     if(err) console.log(err);
-    if(typeof(data.Items[0].idRoom) != 'undefined')
+    if(data.Items.length != 0){
       res.json({
         'idRoom': data.Items[0].idRoom,
         'info': data.Items[0].info
       })
+    }
   })
 }
 app.post('/api/getChatRoomInfo', (req, res) => {
@@ -632,11 +693,12 @@ app.post('/api/unlockuser', (req, res) => {
 io.on('connection', function (socket) {
   //Mess
   socket.on('join-room', idRoom => {
-    socket.join(idRoom);
+    if(idRoom)
+      socket.join(idRoom);
   })
   socket.on('Client-Send-Message', async (idRoom, idUserSend, message) => {
     await saveChat(idRoom, idUserSend, message);
-    await io.to(idRoom).emit('Server-Send-Message', message, socket.id);
+    await io.to(idRoom).emit('Server-Send-Message', idUserSend, message, socket.id);
   });
   //Friend request
   socket.on('sendFriend', ({ id, usernameReceived, msg }) => {

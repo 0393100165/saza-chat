@@ -147,4 +147,10 @@ export class AuthfakeauthenticationService {
             return data;
         }));
     }
+
+    createGroup(nameGroup, listUser){
+        return this.http.post('/api/createGroup', {nameGroup, listUser}).pipe(map(data => {
+            return data;
+        }));
+    }
 }

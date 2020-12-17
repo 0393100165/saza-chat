@@ -21,231 +21,55 @@
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <div class="modal-body p-4">
-          <form [formGroup]="groupForm">
+        <form [formGroup]="groupForm" (ngSubmit)="createGroups()">
+          <div class="modal-body p-4">
+            <h2 type="text" class="text-danger text-center" *ngIf="error" [dismissible]="false">{{ error }}</h2>
             <div class="form-group mb-4">
               <label for="addgroupname-input">Tên nhóm</label>
               <input type="text" class="form-control" id="addgroupname-input"
-                placeholder="{{'chat.tabs.groups.modal.form.name.placeholder' | translate}}">
+                placeholder="Tên nhóm..." formControlName="groupName"
+                autofocus>
+              <div *ngIf="submitted && f.groupName.errors" class="invalid-feedback">
+                <div *ngIf="f.groupName.errors.required">Tên nhóm không được để trống</div>
+              </div>
             </div>
             <div class="form-group mb-4">
               <label>Thành viên</label>
-              <div class="mb-3">
-                <button class="btn btn-light btn-sm" type="button" data-toggle="collapse"
-                  (click)="isCollapsed = !isCollapsed" data-target="#groupmembercollapse" aria-expanded="false"
-                  aria-controls="groupmembercollapse">
-                  Chọn thành viên
-                </button>
-              </div>
-    
-              <div class="collapse" id="groupmembercollapse" [ngbCollapse]="isCollapsed">
                 <div class="card border">
                   <div class="card-header">
-                    <h5 class="font-size-15 mb-0">{{'chat.tabs.contacts.title' | translate}}</h5>
+                    <h5 class="font-size-15 mb-0">Danh sách thành viên</h5>
                   </div>
                   <div class="card-body p-2">
-                    <perfect-scrollbar data-simplebar style="height: 150px;">
-                      <div>
+                    <perfect-scrollbar data-simplebar style="height: 350px;" data-simplebar>
+                      <div *ngFor="let item of contactsList">
                         <div class="p-3 font-weight-bold text-primary">
-                          {{'chat.tabs.contacts.list.A.text' | translate}}
+                          {{item.key}}
                         </div>
-    
                         <ul class="list-unstyled contact-list">
-                          <li>
-                            <div class="custom-control custom-checkbox">
-                              <input type="checkbox" class="custom-control-input" id="memberCheck1" checked>
-                              <label class="custom-control-label" for="memberCheck1">{{'chat.tabs.contacts.list.A.name' |
-                                translate}}</label>
+                          <li *ngFor="let item of item.contacts">
+                            <div class="media align-items-center">
+                              <div class="media-body">
+                                <div class="custom-control custom-checkbox">
+                                  <input type="checkbox" class="custom-control-input" id="{{item.id}}"
+                                  (change)="listUser(item.id)">
+                                  <label class="custom-control-label" for="{{item.id}}">{{item.name | translate}}</label>
+                                </div>
+                              </div>
                             </div>
                           </li>
-    
-                          <li>
-                            <div class="custom-control custom-checkbox">
-                              <input type="checkbox" class="custom-control-input" id="memberCheck2">
-                              <label class="custom-control-label" for="memberCheck2">{{'chat.tabs.contacts.list.A.name2' |
-                                translate}}</label>
-                            </div>
-                          </li>
-                        </ul>
-                      </div>
-    
-                      <div>
-                        <div class="p-3 font-weight-bold text-primary">
-                          {{'chat.tabs.contacts.list.C.text' | translate}}
-                        </div>
-    
-                        <ul class="list-unstyled contact-list">
-                          <li>
-                            <div class="custom-control custom-checkbox">
-                              <input type="checkbox" class="custom-control-input" id="memberCheck3">
-                              <label class="custom-control-label" for="memberCheck3">
-                                {{'chat.tabs.contacts.list.C.name' | translate}}</label>
-                            </div>
-                          </li>
-    
-                        </ul>
-                      </div>
-    
-                      <div>
-                        <div class="p-3 font-weight-bold text-primary">
-                          {{'chat.tabs.contacts.list.D.text' | translate}}
-                        </div>
-    
-                        <ul class="list-unstyled contact-list">
-                          <li>
-                            <div class="custom-control custom-checkbox">
-                              <input type="checkbox" class="custom-control-input" id="memberCheck4">
-                              <label class="custom-control-label" for="memberCheck4">
-                                {{'chat.tabs.contacts.list.D.name' | translate}}</label>
-                            </div>
-                          </li>
-    
-                        </ul>
-                      </div>
-    
-                      <div>
-                        <div class="p-3 font-weight-bold text-primary">
-                          {{'chat.tabs.contacts.list.I.text' | translate}}
-                        </div>
-    
-                        <ul class="list-unstyled contact-list">
-                          <li>
-                            <div class="custom-control custom-checkbox">
-                              <input type="checkbox" class="custom-control-input" id="memberCheck5">
-                              <label class="custom-control-label" for="memberCheck5">
-                                {{'chat.tabs.contacts.list.I.name' | translate}}</label>
-                            </div>
-                          </li>
-    
-                        </ul>
-                      </div>
-    
-                      <div>
-                        <div class="p-3 font-weight-bold text-primary">
-                          {{'chat.tabs.contacts.list.J.text' | translate}}
-                        </div>
-    
-                        <ul class="list-unstyled contact-list">
-                          <li>
-                            <div class="custom-control custom-checkbox">
-                              <input type="checkbox" class="custom-control-input" id="memberCheck6">
-                              <label class="custom-control-label" for="memberCheck6">{{'chat.tabs.contacts.list.J.name' |
-                                translate}}</label>
-                            </div>
-                          </li>
-    
-                          <li>
-                            <div class="custom-control custom-checkbox">
-                              <input type="checkbox" class="custom-control-input" id="memberCheck7">
-                              <label class="custom-control-label" for="memberCheck7">{{'chat.tabs.contacts.list.J.name2' |
-                                translate}}</label>
-                            </div>
-                          </li>
-    
-                          <li>
-                            <div class="custom-control custom-checkbox">
-                              <input type="checkbox" class="custom-control-input" id="memberCheck8">
-                              <label class="custom-control-label" for="memberCheck8">{{'chat.tabs.contacts.list.J.name3' |
-                                translate}}</label>
-                            </div>
-                          </li>
-    
-                        </ul>
-                      </div>
-    
-                      <div>
-                        <div class="p-3 font-weight-bold text-primary">
-                          {{'chat.tabs.contacts.list.M.text' | translate}}
-                        </div>
-    
-                        <ul class="list-unstyled contact-list">
-                          <li>
-                            <div class="custom-control custom-checkbox">
-                              <input type="checkbox" class="custom-control-input" id="memberCheck9">
-                              <label class="custom-control-label" for="memberCheck9">{{'chat.tabs.contacts.list.M.name' |
-                                translate}}</label>
-                            </div>
-                          </li>
-    
-                          <li>
-                            <div class="custom-control custom-checkbox">
-                              <input type="checkbox" class="custom-control-input" id="memberCheck10">
-                              <label class="custom-control-label" for="memberCheck10">{{'chat.tabs.contacts.list.M.name2' |
-                                translate}}</label>
-                            </div>
-                          </li>
-    
-                        </ul>
-                      </div>
-    
-                      <div>
-                        <div class="p-3 font-weight-bold text-primary">
-                          {{'chat.tabs.contacts.list.P.text' | translate}}
-                        </div>
-    
-                        <ul class="list-unstyled contact-list">
-                          <li>
-                            <div class="custom-control custom-checkbox">
-                              <input type="checkbox" class="custom-control-input" id="memberCheck11">
-                              <label class="custom-control-label" for="memberCheck11">
-                                {{'chat.tabs.contacts.list.P.name' | translate}}</label>
-                            </div>
-                          </li>
-    
-                        </ul>
-                      </div>
-    
-                      <div>
-                        <div class="p-3 font-weight-bold text-primary">
-                          {{'chat.tabs.contacts.list.R.text' | translate}}
-                        </div>
-    
-                        <ul class="list-unstyled contact-list">
-                          <li>
-                            <div class="custom-control custom-checkbox">
-                              <input type="checkbox" class="custom-control-input" id="memberCheck12">
-                              <label class="custom-control-label" for="memberCheck12">
-                                {{'chat.tabs.contacts.list.R.name' | translate}}</label>
-                            </div>
-                          </li>
-    
-                        </ul>
-                      </div>
-    
-                      <div>
-                        <div class="p-3 font-weight-bold text-primary">
-                          {{'chat.tabs.contacts.list.S.text' | translate}}
-                        </div>
-    
-                        <ul class="list-unstyled contact-list">
-                          <li>
-                            <div class="custom-control custom-checkbox">
-                              <input type="checkbox" class="custom-control-input" id="memberCheck13">
-                              <label class="custom-control-label" for="memberCheck13">{{'chat.tabs.contacts.list.S.name' |
-                                translate}}</label>
-                            </div>
-                          </li>
-    
                         </ul>
                       </div>
                     </perfect-scrollbar>
                   </div>
-    
-                </div>
               </div>
             </div>
-            <div class="form-group">
-              <label for="addgroupdescription-input">Miêu tả</label>
-              <textarea class="form-control" id="addgroupdescription-input" rows="3"
-                placeholder="Nội dung nhóm"></textarea>
-            </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-link" data-dismiss="modal"
-            (click)="modal.dismiss('Cross click')">Thoát</button>
-          <button type="button" class="btn btn-primary">Tạo nhóm</button>
-        </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-link" data-dismiss="modal"
+              (click)="modal.dismiss('Cross click')">Thoát</button>
+            <button type="submit" class="btn btn-primary">Tạo nhóm</button>
+          </div>
+        </form>
       </div>
     </ng-template>
     <!-- End add group Modal -->
