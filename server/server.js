@@ -114,7 +114,49 @@ app.post('/api/checklogin', (req, res) => {
     return res.redirect('/account/login');
   }
 });
-/***************************saveUser */
+/***************************register */
+let register = function (res, username, password, fullname, email, phone, birthday) {
+  var max = 999999;
+  var min = 100000;
+  var id = Math.floor(Math.random() * (max - min)) + min;
+  var input = {
+    id: id,
+    'username': username,
+    'password': password,
+    'fullname': fullname,
+    'nickname': fullname, //Mặc định lúc đầu nick = fullname
+    'isAdministrator': 0,
+    'status': 'Đang hoạt động',
+    'phone': phone,
+    'email': email,
+    'sex': 'Không xác định', //Mặc định
+    'birthday': birthday,
+    'address': ' ',
+    'status_message': ' ',
+    'url_avatar': 'assets/images/users/default.png', //avatar mặc định
+  };
+  var params = {
+    TableName: tableUser,
+    Item: input
+  };
+  docClient.put(params, function (err, data) {
+    if (err) {
+      console.log('User::save::error - ' + JSON.stringify(err, null, 2));
+    } else {
+      if (data === null) {
+        return res.json({
+          error: 'Đăng kí không thành công'
+        })
+      } else {
+        login(res, username, password)
+      }
+    }
+  });
+}
+app.post('/api/register', (req, res) => {
+  register(res, req.body.username, req.body.password, req.body.fullname, req.body.email, req.body.phone, req.body.birthday);
+});
+/******************saveUser */
 let saveUser = function (res, username, password, isAdmin, fullname, email, phone, birthday) {
   var max = 999999;
   var min = 100000;
@@ -151,8 +193,7 @@ let saveUser = function (res, username, password, isAdmin, fullname, email, phon
     }
   });
 }
-/***************************register */
-app.post('/api/register', (req, res) => {
+app.post('/api/saveUser', (req, res) => {
   saveUser(res, req.body.username, req.body.password, req.body.isAdmin, req.body.fullname, req.body.email, req.body.phone, req.body.birthday);
 });
 /***************************Get all user email, phone */

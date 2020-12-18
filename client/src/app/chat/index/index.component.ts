@@ -312,6 +312,9 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
     this.submitted = true;
     if (this.userForm.invalid)
       return;
+    //Người dùng nhập năm lớn hơn năm hiện tại
+    if (((new Date().getTime() - new Date(birthday).getTime()) / 31556952000) < 0)
+      return this.error = 'Ngày sinh phải bé hơn ngày hiện tại'
 
     var username = this.f.username.value
     var password = this.f.password.value
@@ -344,31 +347,24 @@ export class IndexComponent implements OnInit, AfterViewInit, OnDestroy {
       .pipe(takeUntil(this.destroy$)).subscribe(data => {
         if (data['user'] != null)
           return this.error = 'Tên người dùng đã tồn tại'
-      })
-
-    //Người dùng nhập năm lớn hơn năm hiện tại
-    if (((new Date().getTime() - new Date(birthday).getTime()) / 31556952000) < 0)
-      return this.error = 'Ngày sinh phải bé hơn ngày hiện tại'
-
-    this.authFackservice.saveUser(username, password,
-      this.checkAdmin ? 1 : 0, fullname, email, phone, birthday)
-      .pipe(takeUntil(this.destroy$)).subscribe(data => { },
-      error => {
-        this.error = error ? error : '';
-      });
-    this.success = 'Thêm tài khoản thành công'
-    this.submitted = false
-    this.userForm.reset()
-    this.checkAdmin = false
-    this.authFackservice.getAll().pipe(takeUntil(this.destroy$)).subscribe(
-      data => {
-        // Assign the data to the data source for the table to render
-        this.dataSource = new MatTableDataSource(data['user']);
-        this.dataSource.sort = this.sort;
-    },
-    error => {
-      console.error(error);
-    });
+        else{
+          this.authFackservice.saveUser(username, password,
+            this.checkAdmin ? 1 : 0, fullname, email, phone, birthday)
+            .pipe(takeUntil(this.destroy$)).subscribe(data => {},
+            error => {this.error = error ? error : '';});
+            this.success = 'Thêm tài khoản thành công'
+            this.submitted = false
+            this.userForm.reset()
+            this.checkAdmin = false
+            this.authFackservice.getAll().pipe(takeUntil(this.destroy$)).subscribe(
+              data => {
+                // Assign the data to the data source for the table to render
+                this.dataSource = new MatTableDataSource(data['user']);
+                this.dataSource.sort = this.sort;
+            },
+            error => {this.error = error ? error : '';});
+        }
+    })
   }
 
   checkBoxAdmin(){

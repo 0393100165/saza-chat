@@ -5,7 +5,6 @@ import { AuthfakeauthenticationService } from '../../../../core/services/authfak
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { Injectable } from '@angular/core';
 
 import * as firebase from 'firebase/app'
 import { WindowService } from '../../../../core/services/window.service';
@@ -65,8 +64,14 @@ export class OTPComponent implements OnInit, OnDestroy {
       'height': '50px'
     }
   };
-  onOtpChange(otp) {
-    this.otp = otp;
+
+  onOtpChange($event) {
+    this.otp = $event;
+    if(this.otp.length === 6){
+      this.verifyLoginCode()
+      if(this.verify)
+        this.register()
+    }
   }
 
   setVal(val) {
@@ -103,10 +108,15 @@ export class OTPComponent implements OnInit, OnDestroy {
     // stop here if form is invalid
     if(this.otp.length < 6)
       return this.error = 'Mã OTP phải đủ 6 ký tự số'
-    
-    this.verifyLoginCode()
-    
-    /********************** register ******************************/
+    else{
+      this.verifyLoginCode()
+      if(this.verify)
+        this.register()
+      else this.error = 'Sai mã OTP'
+    }
+  }
+
+  register(){
     if(this.verify){
       var username = this.routes.snapshot.paramMap.get('username')
       var password = this.routes.snapshot.paramMap.get('password')
@@ -115,10 +125,12 @@ export class OTPComponent implements OnInit, OnDestroy {
       var phone = this.routes.snapshot.paramMap.get('phone')
       var birthday = this.routes.snapshot.paramMap.get('birthday')
 
-      this.authFackservice.register(username, password, 0, fullname, email, phone, birthday)
+      this.authFackservice.register(username, password, fullname, email, phone, birthday)
         .pipe(takeUntil(this.destroy$)).subscribe(data => {
-          if (data[0].length != 0) {           
-            this.authFackservice.login(username, password)
+          if (data != null) {
+            var token = data['token'];
+            var user = data['user']; 
+            this.authFackservice.saveUserData(user, token)
             this.router.navigate(['/']);
           } else {
             this.error = Object.values(data)[0];
@@ -144,12 +156,13 @@ export class OTPComponent implements OnInit, OnDestroy {
     this.windowRef.confirmationResult
       .confirm(this.otp)
       .then( result => {this.verify = true})
-    .catch( error => this.error = error);
+    .catch();
   }
 
   reSendOTP(){
     this.success = 'Mã OTP đã được gửi'
-    this.loading = false;
+    this.loading = false
+    this.submitted = false
     var phone = this.routes.snapshot.paramMap.get('phone')
     if(phone != ' ')
       this.sendLoginCode('+84'+phone)

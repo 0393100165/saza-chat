@@ -50,22 +50,14 @@ export class AuthfakeauthenticationService {
         this.currentUserSubject.next(null);
     }
     
-    register(username:string, password:string, isAdmin: number, fullname:string, email:string, phone:string, birthday:string) {
-        return this.http.post('/api/register', {username, password, isAdmin, fullname, email, phone, birthday}).pipe(map(data => {         
-            var token = Object.values(data)[0];
-            var user = Object.values(data)[1];
-            if(token != null){
-                localStorage.setItem('currentUser', JSON.stringify(user));
-                localStorage.setItem('currentToken', JSON.stringify(token));
-                this.currentUserSubject.next(user);
-                return data;
-            }
+    register(username:string, password:string, fullname:string, email:string, phone:string, birthday:string) {
+        return this.http.post('/api/register', {username, password, fullname, email, phone, birthday}).pipe(map(data => {         
             return data
         }));
     }
 
     saveUser(username:string, password:string, isAdmin: number, fullname:string, email:string, phone:string, birthday:string) {
-        return this.http.post('/api/register', {username, password, isAdmin, fullname, email, phone, birthday}).pipe(map(data => {         
+        return this.http.post('/api/saveUser', {username, password, isAdmin, fullname, email, phone, birthday}).pipe(map(data => {         
             return data
         }));
     }

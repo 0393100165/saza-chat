@@ -32,7 +32,7 @@
 
                 <div class="mt-4">
                   <button class="btn btn-primary btn-block"
-                    type="submit" href="javascript: void(0);"
+                    type="submit" href="javascript: void(0);" [disabled]="!submitted && !loading"
                     (click)="onSubmit()">Xác nhận</button>
                 </div>
 
